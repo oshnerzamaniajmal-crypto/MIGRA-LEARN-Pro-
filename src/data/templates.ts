@@ -1,0 +1,88 @@
+import type { TextTemplate } from "../types";
+
+export const templates: TextTemplate[] = [
+  {
+    id: "t1", category: "E-Mail an Ausländerbehörde", title: "Angeforderte Unterlagen nachreichen",
+    situation: "Nachweise zu einem laufenden Antrag werden übermittelt.",
+    formal: "Sehr geehrte Damen und Herren,\n\nzur weiteren Prüfung des Antrags reiche ich die angeforderten Unterlagen im Anhang nach. Bitte bestätigen Sie kurz den Eingang und teilen Sie mir mit, falls weitere Nachweise benötigt werden.\n\nMit freundlichen Grüßen",
+    simple: "Guten Tag,\n\nanbei sende ich die fehlenden Unterlagen. Bitte bestätigen Sie den Eingang. Fehlt noch etwas?\n\nMit freundlichen Grüßen",
+    tips: ["Aktenzeichen in den Betreff", "Unterlagen einzeln benennen", "Keine sensiblen Daten unverschlüsselt senden"],
+  },
+  {
+    id: "t2", category: "E-Mail an Ausländerbehörde", title: "Erwerbstätigkeit prüfen lassen",
+    situation: "Eine Person möchte vor Arbeitsbeginn die Nebenbestimmung klären.",
+    formal: "Sehr geehrte Damen und Herren,\n\nbitte prüfen Sie, ob die beabsichtigte Beschäftigung auf Grundlage des vorliegenden Aufenthaltsdokuments zulässig ist. Den Arbeitsvertrag sowie eine Kopie des Dokuments füge ich bei. Ich bitte um schriftliche Rückmeldung vor Aufnahme der Tätigkeit.",
+    simple: "Guten Tag,\n\ndarf ich mit meinem aktuellen Dokument diese Arbeit beginnen? Arbeitsvertrag und Dokument sind beigefügt. Bitte antworten Sie mir schriftlich.",
+    tips: ["Nicht vor Prüfung zusagen", "Vorder- und Rückseite des Dokuments beachten"],
+  },
+  {
+    id: "t3", category: "E-Mail an Jobcenter", title: "Fehlende Unterlagen erfragen",
+    situation: "Eine Mitwirkungsaufforderung ist unklar.",
+    formal: "Sehr geehrte Damen und Herren,\n\nzu Ihrem Schreiben vom [Datum] bitte ich um kurze Konkretisierung, welche Unterlagen für welchen Zeitraum noch benötigt werden. Die bereits eingereichten Nachweise habe ich unten aufgeführt.",
+    simple: "Guten Tag,\n\nbitte schreiben Sie mir genau, welche Unterlagen und welche Monate noch fehlen. Folgende Unterlagen habe ich schon abgegeben: …",
+    tips: ["Frist nennen", "Bereits Eingereichtes auflisten", "Versandnachweis sichern"],
+  },
+  {
+    id: "t4", category: "E-Mail an Jobcenter", title: "Änderung mitteilen",
+    situation: "Einkommen, Umzug oder Familienverhältnisse haben sich geändert.",
+    formal: "Sehr geehrte Damen und Herren,\n\nhiermit teile ich folgende Änderung meiner persönlichen beziehungsweise wirtschaftlichen Verhältnisse mit: [Änderung]. Die entsprechenden Nachweise füge ich bei. Bitte berücksichtigen Sie die Änderung ab [Datum].",
+    simple: "Guten Tag,\n\nbei mir hat sich Folgendes geändert: [Änderung]. Die Nachweise sind im Anhang. Die Änderung gilt ab [Datum].",
+    tips: ["Datum der Änderung", "BG-Nummer", "Nachweis beifügen"],
+  },
+  {
+    id: "t5", category: "E-Mail an BAMF", title: "Frage zur Kursteilnahme",
+    situation: "Berechtigung oder Kurszugang soll geklärt werden.",
+    formal: "Sehr geehrte Damen und Herren,\n\nich bitte um Auskunft, ob für die genannte Person eine Berechtigung beziehungsweise Verpflichtung zur Teilnahme am Integrationskurs vorliegt und welche nächsten Schritte erforderlich sind.",
+    simple: "Guten Tag,\n\nkann die Person an einem Integrationskurs teilnehmen? Bitte teilen Sie uns den nächsten Schritt mit.",
+    tips: ["Status und vorhandene Bescheide prüfen", "Keine unnötigen Gesundheitsdaten senden"],
+  },
+  {
+    id: "t6", category: "E-Mail an Sprachkursträger", title: "Freien Kursplatz anfragen",
+    situation: "Ein passender Kursplatz wird gesucht.",
+    formal: "Sehr geehrte Damen und Herren,\n\nbitte teilen Sie mir mit, ob aktuell oder in Kürze ein Platz in einem [Kursart]-Kurs auf dem Niveau [Niveau] verfügbar ist. Die Teilnahmeberechtigung liegt vor.",
+    simple: "Guten Tag,\n\ngibt es einen freien Platz im [Kursart]-Kurs auf Niveau [Niveau]? Die Berechtigung ist vorhanden.",
+    tips: ["Kursart und Niveau", "Starttermin", "Kinderbetreuung oder Barrierefreiheit bei Bedarf erfragen"],
+  },
+  {
+    id: "t7", category: "Beratungsnotiz", title: "Strukturierte Kurznotiz",
+    situation: "Ein Beratungsgespräch wird sachlich dokumentiert.",
+    formal: "Anliegen: …\nStatus/Dokument: …\nFrist: …\nVorliegende Unterlagen: …\nEinschätzung: …\nVereinbarter nächster Schritt: …\nWeiterleitung/Wiedervorlage: …",
+    simple: "Problem: …\nWichtige Frist: …\nDokumente: …\nNächster Schritt: …",
+    tips: ["Beobachtung und Bewertung trennen", "Nur erforderliche Daten", "Keine abwertenden Formulierungen"],
+  },
+  {
+    id: "t8", category: "Gesprächsprotokoll", title: "Ergebnis eines Fallgesprächs",
+    situation: "Mehrere Stellen stimmen das weitere Vorgehen ab.",
+    formal: "Teilnehmende: …\nAnlass: …\nGesicherte Fakten: …\nOffene Fragen: …\nVereinbarungen mit Zuständigkeit und Termin: …\nNächster Abstimmungstermin: …",
+    simple: "Wer war dabei? …\nWas ist geklärt? …\nWer macht was bis wann? …",
+    tips: ["Zuständigkeit eindeutig zuordnen", "Keine Vermutungen als Fakten dokumentieren"],
+  },
+  {
+    id: "t9", category: "Unterlagenliste", title: "Checkliste Bürgergeld-Erstantrag",
+    situation: "Unterlagen für eine erste Prüfung werden sortiert.",
+    formal: "Bitte halten Sie – soweit einschlägig – Identitäts- und Aufenthaltsdokumente, Mietunterlagen, Nachweise über Einkommen und Vermögen, Kontoauszüge sowie Angaben zur Krankenversicherung bereit.",
+    simple: "Bitte bringen Sie Ihre Dokumente, den Mietvertrag, Kontoauszüge und Nachweise über Geld und Krankenversicherung mit.",
+    tips: ["Nur fallbezogene Nachweise", "Zeitraum der Kontoauszüge nach aktueller Vorgabe prüfen"],
+  },
+  {
+    id: "t10", category: "Frist-Erinnerung", title: "Sachliche Fristerinnerung",
+    situation: "Eine Frist läuft bald ab.",
+    formal: "Ich möchte Sie daran erinnern, dass die im Schreiben vom [Datum] gesetzte Frist am [Datum] endet. Bitte teilen Sie frühzeitig mit, falls die Unterlagen nicht rechtzeitig beschafft werden können.",
+    simple: "Die Frist endet am [Datum]. Wenn Sie die Unterlagen nicht rechtzeitig bekommen, melden Sie sich bitte sofort.",
+    tips: ["Konkretes Datum statt „bald“", "Mögliche Fristverlängerung nicht versprechen"],
+  },
+  {
+    id: "t11", category: "Höfliche Nachfrage", title: "Bearbeitungsstand erfragen",
+    situation: "Zu einem Antrag liegt noch keine Rückmeldung vor.",
+    formal: "Sehr geehrte Damen und Herren,\n\nich bitte höflich um Mitteilung des aktuellen Bearbeitungsstands zum Antrag vom [Datum]. Sofern noch Unterlagen fehlen, bitte ich um einen entsprechenden Hinweis.",
+    simple: "Guten Tag,\n\nwie ist der Stand meines Antrags vom [Datum]? Bitte sagen Sie mir auch, ob noch etwas fehlt.",
+    tips: ["Aktenzeichen", "Antragsdatum", "Keine täglichen Nachfragen"],
+  },
+  {
+    id: "t12", category: "Antwort auf Behördenbrief", title: "Fristwahrende Rückmeldung",
+    situation: "Der Inhalt kann noch nicht vollständig beantwortet werden.",
+    formal: "Sehr geehrte Damen und Herren,\n\nIhr Schreiben vom [Datum] habe ich erhalten. Zur Wahrung der Frist teile ich mit, dass die angeforderten Unterlagen derzeit beschafft werden. Ich bitte um Fristverlängerung bis zum [Datum] und um kurze Bestätigung.",
+    simple: "Guten Tag,\n\nich habe Ihren Brief erhalten. Ich brauche mehr Zeit für die Unterlagen. Bitte verlängern Sie die Frist bis [Datum] und bestätigen Sie mir das.",
+    tips: ["Fristverlängerung ausdrücklich beantragen", "Neues realistisches Datum nennen"],
+  },
+];

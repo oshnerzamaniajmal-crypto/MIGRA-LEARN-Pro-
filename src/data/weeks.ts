@@ -1,0 +1,87 @@
+import type { WeekModule } from "../types";
+
+const taskTypes = ["Lesen", "Karteikarten", "Fall", "Schreiben", "Quiz", "Prüfung"] as const;
+
+const makeTasks = (week: number, titles: string[]) =>
+  titles.map((title, index) => ({
+    id: `w${week}-d${index + 1}`,
+    day: index + 1,
+    title,
+    duration: index === 5 ? 90 : 75,
+    type: taskTypes[index],
+  }));
+
+export const weeks: WeekModule[] = [
+  {
+    id: 1,
+    shortTitle: "Status verstehen",
+    title: "Grundsystem Ausländerrecht",
+    goal: "Sie unterscheiden Statusarten, lesen Nebenbestimmungen und erkennen die ersten Prüfschritte.",
+    category: "Ausländerrecht",
+    topics: ["Aufenthaltstitel", "Aufenthaltserlaubnis", "Niederlassungserlaubnis", "Visum", "Duldung", "Aufenthaltsgestattung", "Fiktionsbescheinigung", "Passpflicht", "Identitätsklärung", "Nebenbestimmungen", "Erwerbstätigkeit"],
+    tasks: makeTasks(1, ["Statusarten als Systemkarte lesen", "20 Grundbegriffe aktiv wiederholen", "Fall: Duldung und Ausbildung", "Unterlagenanforderung formulieren", "Status-Quiz lösen", "Wochenprüfung: Status sicher einordnen"]),
+    terms: ["Aufenthaltstitel", "Visum", "Aufenthaltserlaubnis", "Niederlassungserlaubnis", "Daueraufenthalt-EU", "Blaue Karte EU", "ICT-Karte", "Aufenthaltsgestattung", "Duldung", "Fiktionsbescheinigung", "Passpflicht", "Identitätsklärung", "Nebenbestimmung", "Erwerbstätigkeit", "Beschäftigung", "Lebensunterhaltssicherung", "Krankenversicherung", "Wohnraum", "Frist", "Fiktionswirkung"],
+    reflection: "Welche Information auf einem Dokument entscheidet zuerst über Ihre weitere Prüfung?",
+    examTitle: "Status, Dokument und Erwerbstätigkeit",
+  },
+  {
+    id: 2,
+    shortTitle: "Schutz & Familie",
+    title: "Humanitäre Aufenthaltstitel und Familiennachzug",
+    goal: "Sie ordnen humanitäre Titel ein und erkennen Kernfragen bei Schutz, Familie und Daueraufenthalt.",
+    category: "Ausländerrecht",
+    topics: ["§ 22 AufenthG", "§ 23 AufenthG", "§ 24 AufenthG", "§ 25 AufenthG", "Flüchtlingseigenschaft", "subsidiärer Schutz", "Abschiebungsverbot", "Familiennachzug", "Wohnsitzauflage", "Niederlassungserlaubnis-Grundlagen"],
+    tasks: makeTasks(2, ["Humanitäre Titel vergleichen", "Schutzformen mit Karten lernen", "Fall: Familie mit § 25 Abs. 2", "E-Mail zum Familiennachzug", "Schutz-und-Familie-Quiz", "Wochenprüfung: Anspruch oder Ermessen"]),
+    terms: ["Flüchtlingseigenschaft", "subsidiärer Schutz", "Abschiebungsverbot", "humanitäre Aufnahme", "vorübergehender Schutz", "Familiennachzug", "Ehegattennachzug", "Kindernachzug", "Elternnachzug", "Bezugsperson", "Wohnsitzauflage", "Kernfamilie", "Sprachnachweis", "Lebensunterhalt", "ausreichender Wohnraum", "Niederlassungserlaubnis", "Ausweisungsinteresse", "Straftat", "Ermessen", "Anspruch"],
+    reflection: "Welche Voraussetzungen hängen vom konkreten Titel der Bezugsperson ab?",
+    examTitle: "Humanitärer Aufenthalt und Familie",
+  },
+  {
+    id: 3,
+    shortTitle: "Bürgergeld",
+    title: "Jobcenter und Bürgergeld",
+    goal: "Sie verstehen Anspruch, Bedarf, Einkommen und die grundlegende Falllogik des SGB II.",
+    category: "Jobcenter / SGB II",
+    topics: ["SGB II", "Bürgergeld", "Erwerbsfähigkeit", "Hilfebedürftigkeit", "gewöhnlicher Aufenthalt", "Bedarfsgemeinschaft", "Regelbedarf", "Mehrbedarf", "Kosten der Unterkunft", "Einkommen", "Vermögen", "Mitwirkungspflicht"],
+    tasks: makeTasks(3, ["Anspruchsvoraussetzungen lesen", "SGB-II-Begriffe sortieren", "Fall: Erstantrag einer Familie", "Mitwirkungsaufforderung schreiben", "Bürgergeld-Quiz", "Wochenprüfung: Bedarf und Zuständigkeit"]),
+    terms: ["Leistungsberechtigung", "Erwerbsfähigkeit", "Hilfebedürftigkeit", "gewöhnlicher Aufenthalt", "Bedarfsgemeinschaft", "Haushaltsgemeinschaft", "Regelbedarf", "Mehrbedarf", "Kosten der Unterkunft", "Heizkosten", "Einkommen", "Vermögen", "Freibetrag", "Bewilligungszeitraum", "Weiterbewilligung", "Mitwirkung", "Versagung", "Darlehen", "Rückforderung", "Widerspruch"],
+    reflection: "Welche fünf Angaben benötigen Sie, bevor eine Leistungsberechnung sinnvoll beginnt?",
+    examTitle: "Anspruch, Bedarf und Mitwirkung",
+  },
+  {
+    id: 4,
+    shortTitle: "Sprache & Arbeit",
+    title: "Integration, Sprache und Arbeitsmarkt",
+    goal: "Sie entwickeln realistische Förderketten von Sprache und Anerkennung bis Ausbildung oder Arbeit.",
+    category: "Integration",
+    topics: ["Integrationskurs", "Orientierungskurs", "Berufssprachkurs", "B1, B2, C1", "Anerkennung ausländischer Abschlüsse", "Ausbildung", "Qualifizierung", "Praktikum", "Bewerbung", "Kooperationsplan", "Arbeitsmarktintegration"],
+    tasks: makeTasks(4, ["Sprachförderkette aufbauen", "Integrationsbegriffe wiederholen", "Fall: Akademikerin mit B1", "Integrationsplan schreiben", "Sprache-und-Arbeit-Quiz", "Wochenprüfung: passgenaue Förderkette"]),
+    terms: ["Integrationskurs", "Orientierungskurs", "Berufssprachkurs", "Alphabetisierung", "GER", "B1", "B2", "C1", "Anerkennung", "reglementierter Beruf", "Zeugnisbewertung", "Anpassungsqualifizierung", "Ausgleichsmaßnahme", "Ausbildung", "Umschulung", "Weiterbildung", "Praktikum", "Kooperationsplan", "Potenzialanalyse", "Vermittlungsbudget"],
+    reflection: "Was ist für die Person der nächste realistische Schritt – nicht nur das langfristige Ziel?",
+    examTitle: "Sprachförderung und Arbeitsmarktweg",
+  },
+  {
+    id: 5,
+    shortTitle: "Beratung",
+    title: "Beratung und Fallmanagement",
+    goal: "Sie führen strukturierte Gespräche, beachten Fristen und formulieren klare nächste Schritte.",
+    category: "Beratung",
+    topics: ["Erstberatung", "Clearing", "Fallanalyse", "Fristenprüfung", "Dokumentation", "Datenschutz", "Verweisberatung", "professionelle Grenzen", "schwierige Beratungsgespräche"],
+    tasks: makeTasks(5, ["Beratungsablauf lesen", "Methodenbegriffe trainieren", "Fall: unklarer Behördenbrief", "Beratungsnotiz verfassen", "Beratungs-Quiz", "Wochenprüfung: Gespräch und Dokumentation"]),
+    terms: ["Erstberatung", "Clearing", "Anliegenklärung", "Fallanalyse", "Fristenprüfung", "Verweisberatung", "Einzelfallhilfe", "Hilfe zur Selbsthilfe", "Ressourcenorientierung", "Dokumentation", "Datenschutz", "Einwilligung", "Schweigepflicht", "professionelle Distanz", "Empathie", "einfache Sprache", "Dolmetschen", "Krisenintervention", "Fachstelle", "Wiedervorlage"],
+    reflection: "Wo endet hilfreiche Orientierung und wo beginnt eine rechtliche Vertretung?",
+    examTitle: "Clearing, Grenzen und nächster Schritt",
+  },
+  {
+    id: 6,
+    shortTitle: "Praxis & Bewerbung",
+    title: "Praxis, Prüfung und Bewerbung",
+    goal: "Sie verbinden Fachwissen, Falllogik und professionelle Kommunikation für Auswahlverfahren und Praxis.",
+    category: "Behördenkommunikation",
+    topics: ["Vorstellungsgespräch", "Fallprüfung", "Behördenkommunikation", "E-Mail-Formulierungen", "Beratungsnotizen", "Abschlussprüfung", "eigene Stärken für Bewerbung"],
+    tasks: makeTasks(6, ["Fachfragen laut beantworten", "Kommunikationsbegriffe prüfen", "Gemischten Abschlussfall lösen", "Behörden-E-Mail überarbeiten", "Prüfungsquiz", "Abschlussprüfung und Kompetenzprofil"]),
+    terms: ["Anhörung", "Bescheid", "Rechtsbehelfsbelehrung", "Fristsetzung", "Nachweis", "Aktenlage", "Sachverhalt", "Prüfung", "Entscheidung", "Begründung", "Ermessen", "Verhältnismäßigkeit", "Auflage", "Ablehnung", "Bewilligung", "Widerspruch", "Gesprächsprotokoll", "Beratungsnotiz", "Sachlichkeit", "Adressatengerechtigkeit"],
+    reflection: "Welche Ihrer Erfahrungen belegt am stärksten, dass Sie komplexe Fälle ruhig und strukturiert bearbeiten?",
+    examTitle: "Berufsnahe Abschlussprüfung",
+  },
+];
