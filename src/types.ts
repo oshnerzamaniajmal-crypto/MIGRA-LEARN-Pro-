@@ -97,12 +97,20 @@ export interface CaseFile {
     authority: string[];
     benefit: string[];
     work: string[];
+    legalBasis: string[];
+    decision: string[];
+    risk: string[];
+    priority: string[];
   };
   solution: {
     status: string;
     authority: string;
     benefit: string;
     work: string;
+    legalBasis: string;
+    decision: string;
+    risk: string;
+    priority: string;
     missing: string[];
     nextStep: string;
     note: string;

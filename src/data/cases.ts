@@ -2,15 +2,19 @@ import type { CaseFile } from "../types";
 import { additionalCases } from "./additionalCases";
 
 const allOptions = {
-  status: ["Duldung", "Aufenthaltsgestattung", "Aufenthaltserlaubnis", "Fiktionsbescheinigung", "Niederlassungserlaubnis", "EU-Freizügigkeit"],
-  authority: ["Ausländerbehörde", "Jobcenter", "Sozialamt / Leistungsbehörde AsylbLG", "BAMF", "Agentur für Arbeit", "Anerkennungsstelle / Kammer"],
+  status: ["Duldung", "Aufenthaltsgestattung", "Aufenthaltserlaubnis", "Fiktionsbescheinigung", "Niederlassungserlaubnis", "EU-Freizügigkeit", "Visum / nationales Visum", "unklare gemischte Dokumentenlage"],
+  authority: ["Ausländerbehörde", "Jobcenter", "Sozialamt / Leistungsbehörde AsylbLG", "BAMF", "Agentur für Arbeit", "Anerkennungsstelle / Kammer", "Auslandsvertretung", "Verwaltungsgericht / Rechtsberatung", "mehrere Stellen getrennt prüfen"],
   benefit: ["Bürgergeld grundsätzlich prüfbar", "Leistungen nach AsylbLG grundsätzlich prüfbar", "Keine Leistung ohne Einzelfallprüfung", "Arbeitslosengeld nach SGB III prüfen", "Bildungs-/Sprachförderung prüfen"],
-  work: ["Grundsätzlich erlaubt; Nebenbestimmung prüfen", "Nur nach behördlicher Erlaubnis / Nebenbestimmung", "Aktuell nicht geklärt", "Keine Erwerbstätigkeit vorgesehen"],
+  work: ["Grundsätzlich erlaubt; Nebenbestimmung prüfen", "Nur nach behördlicher Erlaubnis / Nebenbestimmung", "Aktuell nicht geklärt", "Keine Erwerbstätigkeit vorgesehen", "Selbstständigkeit gesondert prüfen", "BA-Zustimmung / Beschäftigungsbedingungen prüfen"],
+  legalBasis: ["AufenthG – passende Spezialnorm prüfen", "AsylG / EU-Schutzrecht prüfen", "SGB II / SGB X prüfen", "AsylbLG prüfen", "SGB III / Arbeitsförderung prüfen", "Anerkennungsrecht / DeuFöV prüfen", "Familiennachzug §§ 27 ff. AufenthG prüfen", "Mehrere Rechtsgrundlagen getrennt prüfen"],
+  decision: ["Bewilligung / Erteilung fachlich naheliegend", "Ablehnung fachlich naheliegend", "Weitere Prüfung / Nachforderung vor Entscheidung", "Unzuständigkeit feststellen und weiterleiten", "Frist sichern und Eilprüfung veranlassen", "Verweis an Fachberatung / Rechtsberatung erforderlich"],
+  risk: ["geringes Risiko bei vollständiger Akte", "Frist oder Rechtsverlust möglich", "Arbeitsaufnahme ohne Erlaubnis riskant", "Leistungsunterbrechung / existenzielles Risiko", "Aufenthaltsbeendigung oder Sperre möglich", "Datenschutz / Beratungsgrenze beachten"],
+  priority: ["Sofort: Frist oder existenzielles Risiko", "hoch: fehlende Nachweise zeitnah anfordern", "normal: reguläre Sachprüfung", "zuerst Zuständigkeit klären", "zuerst Status und Nebenbestimmung klären", "zuerst Sicherheit / Krise stabilisieren"],
 };
 
 type Draft = Omit<CaseFile, "id" | "number" | "options" | "solution" | "terms"> & {
   terms?: string[];
-  solution: Omit<CaseFile["solution"], "note" | "email" | "mistakes" | "learningTip"> & Partial<Pick<CaseFile["solution"], "note" | "email" | "mistakes" | "learningTip">>;
+  solution: Omit<CaseFile["solution"], "note" | "email" | "mistakes" | "learningTip" | "legalBasis" | "decision" | "risk" | "priority"> & Partial<Pick<CaseFile["solution"], "note" | "email" | "mistakes" | "learningTip" | "legalBasis" | "decision" | "risk" | "priority">>;
 };
 
 const categoryTerms: Record<CaseFile["category"], string[]> = {
@@ -29,12 +33,112 @@ const makeCase = (draft: Draft, index: number): CaseFile => ({
   options: allOptions,
   solution: {
     ...draft.solution,
+    legalBasis: draft.solution.legalBasis ?? (
+      draft.category === "Jobcenter" ? "SGB II / SGB X prüfen"
+        : draft.category === "Integration" ? "Anerkennungsrecht / DeuFöV prüfen"
+          : draft.category === "Migrationsberatung" ? "Mehrere Rechtsgrundlagen getrennt prüfen"
+            : draft.category === "Abschluss" ? "Mehrere Rechtsgrundlagen getrennt prüfen"
+              : draft.person.status === "Aufenthaltsgestattung" ? "AsylG / EU-Schutzrecht prüfen"
+                : draft.person.status === "Duldung" ? "AufenthG – passende Spezialnorm prüfen"
+                  : "AufenthG – passende Spezialnorm prüfen"
+    ),
+    decision: draft.solution.decision ?? "Weitere Prüfung / Nachforderung vor Entscheidung",
+    risk: draft.solution.risk ?? (
+      draft.facts.toLowerCase().includes("frist") || draft.person.issue.toLowerCase().includes("läuft") ? "Frist oder Rechtsverlust möglich"
+        : draft.category === "Migrationsberatung" && draft.facts.toLowerCase().includes("krise") ? "Datenschutz / Beratungsgrenze beachten"
+          : draft.solution.work.includes("Nur nach") ? "Arbeitsaufnahme ohne Erlaubnis riskant"
+            : "geringes Risiko bei vollständiger Akte"
+    ),
+    priority: draft.solution.priority ?? (
+      draft.facts.toLowerCase().includes("frist") || draft.person.issue.toLowerCase().includes("läuft") ? "Sofort: Frist oder existenzielles Risiko"
+        : draft.solution.work.includes("Nur nach") ? "zuerst Status und Nebenbestimmung klären"
+          : draft.category === "Migrationsberatung" && draft.facts.toLowerCase().includes("krise") ? "zuerst Sicherheit / Krise stabilisieren"
+            : "hoch: fehlende Nachweise zeitnah anfordern"
+    ),
     note: draft.solution.note ?? `Anliegen geklärt. Status und Dokumente wurden geprüft. Zuständigkeit: ${draft.solution.authority}. Nächster Schritt: ${draft.solution.nextStep}`,
     email: draft.solution.email ?? `Sehr geehrte Damen und Herren,\n\nbitte prüfen Sie den dargestellten Sachverhalt. Die vorhandenen Unterlagen sind beigefügt. Bitte teilen Sie mit, welche weiteren Nachweise erforderlich sind.\n\nMit freundlichen Grüßen`,
     mistakes: draft.solution.mistakes ?? ["Nur auf die mündliche Schilderung vertrauen", "Frist oder Nebenbestimmung übersehen", "Eine Leistung ohne Einzelfallprüfung zusagen"],
     learningTip: draft.solution.learningTip ?? "Lesen Sie zuerst Dokument, Gültigkeit und Nebenbestimmung. Ordnen Sie erst danach Leistung und nächsten Schritt zu.",
   },
 });
+
+const generatedCaseBlueprints = [
+  ["Ausländerbehörde", "mittel", 1, "Amira Haddad", "Libanon", "Aufenthaltserlaubnis", "Titel läuft ab und Arbeitgeberwechsel", "Amira hat den Arbeitgeber gewechselt. Der neue Vertrag beginnt in drei Wochen; die Verlängerung ist noch nicht beantragt.", ["Aufenthaltstitel", "Arbeitsvertrag", "Pass", "alte Lohnabrechnungen"], "Welche Frist-, Zweck- und Beschäftigungsfragen sind vor Arbeitsbeginn zu klären?", "AufenthG – passende Spezialnorm prüfen", "Frist sichern und Eilprüfung veranlassen"],
+  ["Ausländerbehörde", "schwer", 2, "Jamal Osman", "Somalia", "Duldung", "fehlender Pass und Ausbildungsplatz", "Jamal hat einen Ausbildungsvertrag, aber seine Identitätsklärung ist nur teilweise dokumentiert.", ["Duldung", "Ausbildungsvertrag", "Botschaftskorrespondenz"], "Welche Mitwirkungs- und Beschäftigungsfragen müssen zuerst geprüft werden?", "AufenthG – passende Spezialnorm prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Ausländerbehörde", "mittel", 1, "Valeria Rusu", "Moldau", "Aufenthaltserlaubnis", "möchte selbstständig arbeiten", "Valeria arbeitet angestellt und möchte zusätzlich ein Gewerbe anmelden. Die Nebenbestimmung erwähnt nur Beschäftigung.", ["Aufenthaltstitel", "Zusatzblatt", "Gewerbekonzept"], "Ist die geplante Selbstständigkeit vom Titel umfasst?", "AufenthG – passende Spezialnorm prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Ausländerbehörde", "schwer", 2, "Hassan N.", "Irak", "Fiktionsbescheinigung", "Familiennachzug und unklare Fortgeltung", "Hassan hat rechtzeitig verlängert. Gleichzeitig läuft ein Antrag auf Nachzug seiner Ehefrau.", ["Fiktionsbescheinigung", "alter Titel", "Heiratsurkunde", "BAMF-Bescheid"], "Welche Wirkungen und Nachzugsvoraussetzungen sind getrennt zu prüfen?", "Familiennachzug §§ 27 ff. AufenthG prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Ausländerbehörde", "mittel", 2, "Ibrahim T.", "Gambia", "Aufenthaltserlaubnis", "Pass läuft während Verlängerung ab", "Ibrahims Pass läuft in zwei Monaten ab. Er beantragt dennoch Verlängerung und hat einen Botschaftstermin.", ["Pass", "Aufenthaltstitel", "Terminbestätigung"], "Wie sind Passpflicht, Mitwirkung und Verlängerung zu dokumentieren?", "AufenthG – passende Spezialnorm prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Ausländerbehörde", "leicht", 1, "Ana Silva", "Brasilien", "Niederlassungserlaubnis", "längerer Auslandsaufenthalt", "Ana möchte neun Monate im Ausland bleiben und fragt nach Folgen für ihren Titel.", ["Niederlassungserlaubnis", "Reiseplanung"], "Was muss vor Ausreise schriftlich geklärt werden?", "AufenthG – passende Spezialnorm prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Ausländerbehörde", "schwer", 2, "Mahdi R.", "Iran", "Aufenthaltserlaubnis", "Straftat im Verlängerungsverfahren", "Mahdi legt einen Verlängerungsantrag vor. In der Akte befindet sich ein aktueller Strafbefehl.", ["Aufenthaltstitel", "Strafbefehl", "Arbeitsvertrag"], "Welche Sicherheits- und Ausweisungsfragen sind zu prüfen?", "AufenthG – passende Spezialnorm prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Ausländerbehörde", "mittel", 1, "Oksana P.", "Ukraine", "Aufenthaltserlaubnis", "Wohnsitzauflage und Umzug", "Oksana möchte wegen einer Arbeitsstelle in ein anderes Bundesland ziehen. Eine Wohnsitzauflage ist eingetragen.", ["Aufenthaltstitel", "Zusatzblatt", "Arbeitsangebot"], "Welche Reihenfolge ist vor dem Umzug einzuhalten?", "AufenthG – passende Spezialnorm prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Jobcenter", "mittel", 3, "Noor Alami", "Marokko", "Aufenthaltserlaubnis", "schwankendes Einkommen und Bürgergeld", "Noor hat wechselnde Schichten. Lohnzuflüsse unterscheiden sich von den Abrechnungen.", ["Lohnabrechnungen", "Kontoauszüge", "Bewilligungsbescheid"], "Wie werden Zufluss, Freibeträge und vorläufige Berechnung geprüft?", "SGB II / SGB X prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Jobcenter", "leicht", 3, "Petro Danylo", "Ukraine", "Aufenthaltserlaubnis", "Weiterbewilligung zu spät", "Petro stellt erst nach Ende des Bewilligungszeitraums fest, dass kein Geld eingegangen ist.", ["alter Bescheid", "Kontoauszug", "Weiterbewilligungsformular"], "Was ist sofort zu tun und welche Monate sind betroffen?", "SGB II / SGB X prüfen", "Frist sichern und Eilprüfung veranlassen"],
+  ["Jobcenter", "schwer", 3, "Selma B.", "Bosnien", "EU-Freizügigkeit", "unklarer Freizügigkeitsgrund", "Selma lebt mit ihrem Partner zusammen. Ihre letzte Beschäftigung endete vor drei Monaten.", ["Meldebescheinigung", "Kündigung", "Arbeitsvertrag"], "Welche aufenthalts- und leistungsrechtlichen Tatsachen sind entscheidend?", "SGB II / SGB X prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Jobcenter", "mittel", 3, "Farid Q.", "Afghanistan", "Aufenthaltserlaubnis", "Umzug ohne Zusicherung", "Farid hat einen neuen Mietvertrag bereits unterschrieben. Die Miete liegt über dem bisherigen Betrag.", ["neuer Mietvertrag", "alter Mietvertrag", "Bescheid"], "Welche Folgen hat der unterschriebene Vertrag für Unterkunftskosten?", "SGB II / SGB X prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Jobcenter", "mittel", 3, "Marta Ionescu", "Rumänien", "EU-Freizügigkeit", "Kindergeld und Teilzeitjob", "Marta erhält Kindergeld, arbeitet Teilzeit und beantragt ergänzend Bürgergeld.", ["Arbeitsvertrag", "Kindergeldbescheid", "Kontoauszüge"], "Wie werden Einkommen, Kindergeld und Bedarfsgemeinschaft eingeordnet?", "SGB II / SGB X prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Jobcenter", "schwer", 3, "Rami Khalil", "Syrien", "Aufenthaltserlaubnis", "Selbstständigkeit mit Verlust", "Rami betreibt ein Kleingewerbe. Einnahmen und Ausgaben sind unsortiert.", ["EKS", "Geschäftskonto", "Quittungen"], "Wie wird das Einkommen aus Selbstständigkeit vorläufig geprüft?", "SGB II / SGB X prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Jobcenter", "leicht", 3, "Amina W.", "Eritrea", "Aufenthaltserlaubnis", "Mehrbedarf Schwangerschaft", "Amina ist schwanger und fragt, ob sie zusätzliche Leistungen erhalten kann.", ["Mutterpass", "Bescheid", "Mietvertrag"], "Welche Bedarfe und Nachweise sind zu prüfen?", "SGB II / SGB X prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Jobcenter", "mittel", 3, "Viktor L.", "Ukraine", "Aufenthaltserlaubnis", "Nebenkostenrückzahlung", "Viktor erhält eine Betriebskostenrückzahlung und weiß nicht, ob er sie melden muss.", ["Abrechnung", "Kontoauszug", "Bescheid"], "Wie wird die Rückzahlung leistungsrechtlich eingeordnet?", "SGB II / SGB X prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Integration", "mittel", 4, "Sofia Chen", "China", "Aufenthaltserlaubnis", "Anerkennung Pflegeabschluss", "Sofia hat Pflegeerfahrung, aber unvollständige Ausbildungsnachweise.", ["Diplom", "Arbeitszeugnisse", "B1-Zertifikat"], "Wie wird ein realistischer Anerkennungs- und Sprachplan erstellt?", "Anerkennungsrecht / DeuFöV prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Integration", "schwer", 4, "Khalil B.", "Syrien", "Aufenthaltserlaubnis", "Kursabbrüche wegen Trauma", "Khalil bricht wiederholt Kurse ab und berichtet von Schlafproblemen.", ["Kursbescheinigungen", "Arzttermin", "Jobcenter-Schreiben"], "Wie werden Sprachförderung und gesundheitliche Stabilisierung verbunden?", "Anerkennungsrecht / DeuFöV prüfen", "Verweis an Fachberatung / Rechtsberatung erforderlich"],
+  ["Integration", "leicht", 4, "Elena V.", "Ukraine", "Aufenthaltserlaubnis", "Berufssprachkurs B2", "Elena hat B1 bestanden und möchte in den medizinischen Bereich wechseln.", ["B1-Zertifikat", "Lebenslauf", "Kursangebot"], "Welche nächsten Sprach- und Berufsorientierungsschritte passen?", "Anerkennungsrecht / DeuFöV prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Integration", "mittel", 4, "Yasin K.", "Türkei", "Aufenthaltserlaubnis", "Ausbildung oder Helferjob", "Yasin kann sofort arbeiten, möchte aber langfristig einen Berufsabschluss.", ["Schulzeugnis", "Jobangebot", "B1-Zertifikat"], "Wie wird zwischen schneller Arbeit und nachhaltiger Ausbildung abgewogen?", "SGB III / Arbeitsförderung prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Integration", "schwer", 4, "Mariam A.", "Äthiopien", "Aufenthaltserlaubnis", "Kinderbetreuung blockiert Kurs", "Mariam kann wegen Kita-Zeiten keinen Vollzeitkurs besuchen.", ["Kita-Bescheinigung", "Kursangebot", "Bescheid"], "Welche Kursform und Unterstützung sind realistisch?", "Anerkennungsrecht / DeuFöV prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Integration", "mittel", 4, "Dmytro S.", "Ukraine", "Aufenthaltserlaubnis", "Meisterqualifikation unklar", "Dmytro war Handwerker, kennt aber die zuständige Kammer nicht.", ["Arbeitszeugnisse", "Diplom", "Lebenslauf"], "Wie wird der Referenzberuf und die Anerkennungsstelle bestimmt?", "Anerkennungsrecht / DeuFöV prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Integration", "leicht", 4, "Lina M.", "Marokko", "Aufenthaltserlaubnis", "Praktikum zur Orientierung", "Lina möchte ein Praktikum im Büro machen und fragt nach Förderung.", ["Lebenslauf", "Praktikumsangebot", "Sprachzertifikat"], "Welche Ziele und Rahmenbedingungen sind vorher zu klären?", "SGB III / Arbeitsförderung prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Integration", "mittel", 4, "Artem H.", "Ukraine", "Aufenthaltserlaubnis", "IT-Kurs ohne Arbeitsmarktbezug", "Artem möchte einen teuren Online-Kurs, hat aber kein klares Berufsziel.", ["Kursangebot", "Lebenslauf", "Bescheid"], "Wie wird die Eignung der Maßnahme geprüft?", "SGB III / Arbeitsförderung prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Migrationsberatung", "mittel", 5, "Rana H.", "Irak", "Aufenthaltserlaubnis", "drei Behördenbriefe mit Fristen", "Rana bringt Briefe von Ausländerbehörde, Jobcenter und Familienkasse. Zwei Fristen laufen in derselben Woche.", ["Behördenschreiben", "Umschläge", "Aufenthaltstitel"], "Wie wird die Fristenmatrix erstellt?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Frist sichern und Eilprüfung veranlassen"],
+  ["Migrationsberatung", "schwer", 5, "Samuel O.", "Nigeria", "Duldung", "Wohnungsverlust und Krise", "Samuel hat Mietschulden, wirkt psychisch stark belastet und öffnet Behördenpost nicht mehr.", ["Mahnung", "Duldung", "ungeöffnete Post"], "Welche Sicherheits- und Weiterleitungsschritte haben Vorrang?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Verweis an Fachberatung / Rechtsberatung erforderlich"],
+  ["Migrationsberatung", "leicht", 5, "Nesrin Y.", "Türkei", "Aufenthaltserlaubnis", "möchte Termin selbst führen", "Nesrin will den nächsten Behördentermin ohne Begleitung wahrnehmen.", ["Terminbestätigung", "Aufenthaltstitel", "Fragenliste"], "Wie wird Hilfe zur Selbsthilfe konkret vorbereitet?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Migrationsberatung", "mittel", 5, "Hassan D.", "Libanon", "Niederlassungserlaubnis", "digitale Weiterbewilligung", "Hassan hat keinen Scanner und möchte seine Zugangsdaten an die Beratung geben.", ["Bescheid", "Papierunterlagen", "Ausweis"], "Wie werden Datenschutz und digitale Hilfe sauber getrennt?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Verweis an Fachberatung / Rechtsberatung erforderlich"],
+  ["Migrationsberatung", "schwer", 5, "Zahra M.", "Afghanistan", "Aufenthaltserlaubnis", "Familiennachzug mit Frist", "Zahra hat eine E-Mail der Botschaft, versteht aber die Dokumentenanforderungen nicht.", ["E-Mail", "BAMF-Bescheid", "Familienunterlagen"], "Was kann Beratung leisten und wann muss weiterverwiesen werden?", "Familiennachzug §§ 27 ff. AufenthG prüfen", "Verweis an Fachberatung / Rechtsberatung erforderlich"],
+  ["Migrationsberatung", "mittel", 5, "Omar B.", "Syrien", "Aufenthaltserlaubnis", "Schulden und Jobcenter-Sanktion", "Omar hat Mahnungen und ein Anhörungsschreiben wegen versäumtem Termin.", ["Mahnung", "Anhörung", "Bescheid"], "Welche Frist und welche Fachstelle sind zuerst wichtig?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Frist sichern und Eilprüfung veranlassen"],
+  ["Migrationsberatung", "leicht", 5, "Iryna Z.", "Ukraine", "Aufenthaltserlaubnis", "Kita, Sprachkurs und Briefe", "Iryna versteht den Sprachkursträgerbrief nicht und hat Betreuungsprobleme.", ["Kursbrief", "Kita-Bescheinigung", "Jobcenter-Brief"], "Wie wird der Brief in einfache nächste Schritte übersetzt?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Migrationsberatung", "schwer", 5, "Bekele T.", "Äthiopien", "Aufenthaltsgestattung", "BAMF-Bescheid zugestellt", "Bekele bringt einen ablehnenden Bescheid mit. Der Zustellumschlag liegt vor.", ["BAMF-Bescheid", "Umschlag", "Aufenthaltsgestattung"], "Welche Fristensicherung ist sofort erforderlich?", "AsylG / EU-Schutzrecht prüfen", "Verweis an Fachberatung / Rechtsberatung erforderlich"],
+  ["Abschluss", "schwer", 6, "Familie Yildiz", "Türkei", "gemischte Dokumentenlage", "Aufenthalt, Schule und Bürgergeld", "Die Mutter hat eine Aufenthaltserlaubnis, der Sohn eine Fiktionsbescheinigung. Ein Jobcenter-Brief setzt Frist.", ["Titel", "Fiktionsbescheinigung", "Schulbescheinigung", "Jobcenter-Brief"], "Wie werden Personen, Fristen und Zuständigkeiten getrennt?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Frist sichern und Eilprüfung veranlassen"],
+  ["Abschluss", "schwer", 6, "Daniel K.", "Ghana", "Duldung", "Jobangebot und AsylbLG", "Daniel hat ein Jobangebot, aber seine Duldung enthält keine klare Arbeitserlaubnis.", ["Duldung", "Jobangebot", "Leistungsbescheid"], "Welche falschen Automatismen müssen vermieden werden?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Abschluss", "schwer", 6, "Leila S.", "Iran", "Aufenthaltserlaubnis", "Anerkennung, Kinderbetreuung und Minijob", "Leila möchte Ingenieurin werden, arbeitet im Minijob und hat nur Vormittagsbetreuung.", ["Diplom", "Lohnabrechnung", "Kita-Nachweis"], "Wie entsteht ein realistischer Integrationsplan?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Abschluss", "schwer", 6, "Oleh K.", "Ukraine", "Aufenthaltserlaubnis", "Selbstständigkeit und Bürgergeld", "Oleh möchte ein Gewerbe anmelden und erhält ergänzend Bürgergeld.", ["Aufenthaltstitel", "Zusatzblatt", "Businessplan", "Bescheid"], "Welche Prüfungen kommen vor der Gründung?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Abschluss", "schwer", 6, "Huda N.", "Syrien", "Aufenthaltserlaubnis", "Trennung und Wohnungssicherung", "Huda trennt sich, die Wohnung ist zu teuer und der Titel läuft bald ab.", ["Aufenthaltstitel", "Mietvertrag", "Trennungsnachweis", "Bescheid"], "Welche Risiken müssen parallel priorisiert werden?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Frist sichern und Eilprüfung veranlassen"],
+  ["Abschluss", "schwer", 6, "Nadia E.", "Eritrea", "Niederlassungserlaubnis", "Pflege, Gesundheit und Arbeitslosigkeit", "Nadia pflegt ihre Mutter, hat gesundheitliche Beschwerden und beantragt Bürgergeld.", ["Kündigung", "Pflegeunterlagen", "Arztbericht"], "Wie werden Leistungsfähigkeit und Zumutbarkeit geprüft?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Abschluss", "schwer", 6, "Arman P.", "Armenien", "Duldung", "Ausbildung, Identität und Schulden", "Arman hat einen Ausbildungsplatz, Schulden und unvollständige Identitätsnachweise.", ["Duldung", "Ausbildungsvertrag", "Mahnungen", "Identitätskopien"], "Welche Reihenfolge schützt Aufenthalt und Stabilisierung?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+  ["Abschluss", "schwer", 6, "Irina M.", "Moldau", "Aufenthaltserlaubnis", "Pflegeanerkennung und ergänzende Leistungen", "Irina arbeitet als Pflegehilfskraft und möchte ihren Abschluss anerkennen lassen.", ["Aufenthaltstitel", "Arbeitsvertrag", "Diplom", "Bescheid"], "Wie werden Einkommen, Anerkennung und Förderung verbunden?", "Mehrere Rechtsgrundlagen getrennt prüfen", "Weitere Prüfung / Nachforderung vor Entscheidung"],
+] as const;
+
+const generatedCases: Draft[] = generatedCaseBlueprints.map(([category, difficulty, week, name, country, status, issue, facts, documents, question, legalBasis, decision], index) => ({
+  category: category as CaseFile["category"],
+  difficulty: difficulty as CaseFile["difficulty"],
+  week: week as number,
+  person: {
+    name,
+    age: 22 + (index % 31),
+    country,
+    family: index % 3 === 0 ? "verheiratet" : index % 3 === 1 ? "ledig" : "alleinerziehend / Familie im Haushalt",
+    language: index % 4 === 0 ? "Deutsch A2" : index % 4 === 1 ? "Deutsch B1" : index % 4 === 2 ? "Deutsch B2" : "Deutsch C1",
+    status,
+    authority: category === "Jobcenter" ? "Jobcenter" : category === "Integration" ? "Jobcenter" : category === "Migrationsberatung" ? "Beratungsstelle / mehrere Stellen" : category === "Abschluss" ? "mehrere Stellen" : "Ausländerbehörde",
+    issue,
+  },
+  facts,
+  documents: [...documents],
+  question,
+  terms: categoryTerms[category as CaseFile["category"]],
+  solution: {
+    status: status === "gemischte Dokumentenlage" ? "Fiktionsbescheinigung" : status,
+    authority: category === "Jobcenter" ? "Jobcenter" : category === "Integration" ? "Anerkennungsstelle / Kammer" : category === "Migrationsberatung" ? "Ausländerbehörde" : category === "Abschluss" ? "mehrere Stellen getrennt prüfen" : "Ausländerbehörde",
+    benefit: category === "Jobcenter" || category === "Abschluss" ? "Bürgergeld grundsätzlich prüfbar" : status === "Duldung" || status === "Aufenthaltsgestattung" ? "Leistungen nach AsylbLG grundsätzlich prüfbar" : category === "Integration" ? "Bildungs-/Sprachförderung prüfen" : "Keine Leistung ohne Einzelfallprüfung",
+    work: status === "Duldung" || status === "Aufenthaltsgestattung" ? "Nur nach behördlicher Erlaubnis / Nebenbestimmung" : issue.toLowerCase().includes("selbst") ? "Selbstständigkeit gesondert prüfen" : "Grundsätzlich erlaubt; Nebenbestimmung prüfen",
+    legalBasis,
+    decision,
+    risk: decision === "Frist sichern und Eilprüfung veranlassen" ? "Frist oder Rechtsverlust möglich" : status === "Duldung" || status === "Aufenthaltsgestattung" ? "Arbeitsaufnahme ohne Erlaubnis riskant" : category === "Jobcenter" ? "Leistungsunterbrechung / existenzielles Risiko" : "geringes Risiko bei vollständiger Akte",
+    priority: decision === "Frist sichern und Eilprüfung veranlassen" ? "Sofort: Frist oder existenzielles Risiko" : status === "Duldung" ? "zuerst Status und Nebenbestimmung klären" : "hoch: fehlende Nachweise zeitnah anfordern",
+    missing: ["vollständige Dokumente", "Rechtsgrundlage und Nebenbestimmung", "aktuelle Nachweise zum konkreten Anliegen"],
+    nextStep: "Sachverhalt nach Personen, Zuständigkeit, Frist und Nachweisen ordnen; fehlende Unterlagen konkret anfordern und keine verbindliche Zusage vor Abschluss der Prüfung machen.",
+    reasoning: "Der Fall darf nicht über eine einzelne Information entschieden werden. Entscheidend sind Status, zuständige Stelle, Rechtsgrundlage, Frist, Nachweise und die passende nächste Handlung.",
+    mistakes: ["nur nach Bauchgefühl entscheiden", "Zuständigkeit und Rechtsgrundlagen vermischen", "eine Bewilligung oder Ablehnung ohne vollständige Nachweise formulieren"],
+    learningTip: "Bei komplexen Fällen zuerst sortieren: Person, Status, Frist, Rechtsgebiet, Nachweise, Entscheidung.",
+  },
+}));
 
 const drafts: Draft[] = [
   {
@@ -278,6 +382,7 @@ const drafts: Draft[] = [
     solution: { status: "Duldung", authority: "Ausländerbehörde", benefit: "Leistungen nach AsylbLG grundsätzlich prüfbar", work: "Nur nach behördlicher Erlaubnis / Nebenbestimmung", missing: ["Nachweise Identitätsklärung", "vollständiger Arbeitsvertrag", "Nebenbestimmung"], nextStep: "Arbeitserlaubnis und aufenthaltsrechtliche Optionen prüfen; Leistungszuständigkeit erst danach gesondert klären.", reasoning: "Jobangebot, Aufenthaltstitel und Leistungswechsel folgen jeweils eigenen Voraussetzungen; nichts geschieht automatisch." },
   },
   ...(additionalCases as Draft[]),
+  ...generatedCases,
 ];
 
-export const cases: CaseFile[] = drafts.map(makeCase);
+export const cases: CaseFile[] = drafts.map(makeCase).slice(0, 100);

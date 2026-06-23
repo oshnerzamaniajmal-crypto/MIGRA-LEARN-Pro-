@@ -6,15 +6,41 @@ import { useMemo, useState } from "react";
 import { cases } from "../data/cases";
 import type { ProgressState } from "../types";
 
-type Answers = { status: string; authority: string; benefit: string; work: string; missing: string; nextStep: string; note: string; email: string };
+type SelectKey = "status" | "authority" | "benefit" | "work" | "legalBasis" | "decision" | "risk" | "priority";
+type Answers = Record<SelectKey, string> & { missing: string; nextStep: string; note: string; email: string };
 type Breakdown = Record<"status" | "authority" | "documents" | "nextStep" | "communication", number>;
-const blank: Answers = { status: "", authority: "", benefit: "", work: "", missing: "", nextStep: "", note: "", email: "" };
+const blank: Answers = { status: "", authority: "", benefit: "", work: "", legalBasis: "", decision: "", risk: "", priority: "", missing: "", nextStep: "", note: "", email: "" };
 
 const normalizedWords = (value: string) => value.toLowerCase().split(/[\s,.;:()/-]+/).filter((word) => word.length > 5);
 const containsRelevant = (answer: string, references: string[]) => {
   const words = references.flatMap(normalizedWords);
   return words.filter((word) => answer.toLowerCase().includes(word)).length >= Math.min(2, words.length);
 };
+
+const selectFields: { key: SelectKey; label: string; why: string }[] = [
+  { key: "status", label: "Aufenthaltsstatus", why: "Der Status ist der Ausgangspunkt. Er entscheidet, ob AufenthG, AsylG, AsylbLG, SGB II oder mehrere Systeme zusammen geprüft werden." },
+  { key: "legalBasis", label: "Rechtsgrundlage", why: "Ohne passende Rechtsgrundlage ist jede Entscheidung nur geraten. Die Norm bestimmt Voraussetzungen, Rechtsfolge und mögliche Ausnahmen." },
+  { key: "authority", label: "Zuständige Stelle", why: "Viele Fehler entstehen, weil Leistung, Aufenthalt, Schutzverfahren, Anerkennung und Beratung bei unterschiedlichen Stellen liegen." },
+  { key: "benefit", label: "Leistung / Förderung", why: "Leistungsrecht folgt eigenen Voraussetzungen. Aufenthaltsstatus eröffnet nicht automatisch eine bestimmte Leistung." },
+  { key: "work", label: "Erwerbstätigkeit", why: "Ob Arbeit erlaubt ist, folgt aus Titel, Nebenbestimmung, Duldung/Gestattung und manchmal weiterer Zustimmung." },
+  { key: "priority", label: "Priorität", why: "Professionell ist nicht, alles gleichzeitig zu machen. Fristen, Sicherheit und existenzielle Risiken kommen zuerst." },
+  { key: "risk", label: "Risikoeinschätzung", why: "Die Risikoeinschätzung schützt vor falschen Zusagen: Arbeit, Fristen, Aufenthalt, Leistung und Datenschutz können hohe Folgen haben." },
+  { key: "decision", label: "Endentscheidung", why: "Die Endentscheidung muss zur Aktenlage passen: Bewilligen, ablehnen, nachfordern, weiterleiten oder Frist sichern." },
+];
+
+const textQuality = (answer: string, references: string[], minLength: number) =>
+  containsRelevant(answer, references) ? 20 : answer.trim().length >= minLength ? 10 : 0;
+
+const fieldExplanation = (label: string, selected: string, expected: string, why: string, reasoning: string) => ({
+  label,
+  points: selected === expected ? 10 : 0,
+  correct: selected === expected,
+  selected: selected || "keine Auswahl",
+  expected,
+  why: selected === expected
+    ? `Richtig. ${why}`
+    : `Nicht korrekt. Du hast „${selected || "keine Auswahl"}“ gewählt; fachlich erwartet wird „${expected}“. ${why} Im konkreten Fall gilt außerdem: ${reasoning}`,
+});
 
 export function CaseTrainerPage({
   state,
@@ -41,12 +67,16 @@ export function CaseTrainerPage({
   const open = (id: string) => { setActiveId(id); setAnswers(blank); setScore(null); setBreakdown(null); setMobileStep(0); window.scrollTo({ top: 0 }); };
   const submit = () => {
     if (!active) return;
+    const statusPoints = (answers.status === active.solution.status ? 10 : 0) + (answers.legalBasis === active.solution.legalBasis ? 10 : 0);
+    const authorityPoints = (answers.authority === active.solution.authority ? 10 : 0) + (answers.benefit === active.solution.benefit ? 5 : 0) + (answers.priority === active.solution.priority ? 5 : 0);
+    const nextStepTextPoints = containsRelevant(answers.nextStep, [active.solution.nextStep]) ? 10 : answers.nextStep.trim().length >= 45 ? 5 : 0;
+    const communicationTextPoints = answers.note.trim().length >= 90 && answers.email.trim().length >= 100 ? 10 : answers.note.trim().length + answers.email.trim().length >= 120 ? 5 : 0;
     const values: Breakdown = {
-      status: answers.status === active.solution.status ? 20 : 0,
-      authority: answers.authority === active.solution.authority ? 20 : 0,
-      documents: containsRelevant(answers.missing, active.solution.missing) ? 20 : answers.missing.trim().length >= 65 ? 10 : 0,
-      nextStep: containsRelevant(answers.nextStep, [active.solution.nextStep]) ? 20 : answers.nextStep.trim().length >= 45 ? 10 : 0,
-      communication: answers.note.trim().length >= 90 && answers.email.trim().length >= 100 ? 20 : answers.note.trim().length + answers.email.trim().length >= 120 ? 10 : 0,
+      status: statusPoints,
+      authority: authorityPoints,
+      documents: textQuality(answers.missing, active.solution.missing, 65),
+      nextStep: (answers.decision === active.solution.decision ? 10 : 0) + nextStepTextPoints,
+      communication: (answers.work === active.solution.work ? 5 : 0) + (answers.risk === active.solution.risk ? 5 : 0) + communicationTextPoints,
     };
     const total = Object.values(values).reduce((sum, value) => sum + value, 0);
     setBreakdown(values);
@@ -60,10 +90,10 @@ export function CaseTrainerPage({
     const average = solved ? Math.round(Object.values(state.caseScores).reduce((a, b) => a + b, 0) / solved) : 0;
     return (
       <div className="space-y-6 sm:space-y-8">
-        <div><p className="eyebrow">Praxislabor</p><h1 className="font-display text-4xl sm:text-5xl">Professioneller Falltrainer</h1><p className="mt-3 max-w-3xl text-ink/55 dark:text-white/48">Bearbeiten Sie anonymisierte Übungsakten wie in der Verwaltung: erst Aktenlage sichern, dann prüfen, erst danach formulieren.</p></div>
+        <div><p className="eyebrow">Praxislabor</p><h1 className="font-display text-4xl sm:text-5xl">Professioneller Falltrainer</h1><p className="mt-3 max-w-3xl text-ink/55 dark:text-white/48">Bearbeiten Sie {cases.length} anonymisierte Übungsakten wie in der Verwaltung: erst Aktenlage sichern, dann prüfen, entscheiden und danach die eigene Fehleranalyse lesen.</p></div>
         <section className="premium-hero relative overflow-hidden rounded-[1.75rem] p-6 text-white sm:rounded-[2.25rem] sm:p-8">
           <div className="grid gap-7 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div><span className="chip border border-white/10 bg-white/10 text-[#f2d8a6]"><ShieldCheck size={14} /> Einheitliches Prüfraster</span><h2 className="mt-4 max-w-4xl font-display text-3xl sm:text-4xl">Status → Anspruch → Zuständigkeit → Unterlagen → Entscheidung → nächster Schritt</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-white/58">Dieses Raster reduziert vorschnelle Aussagen und macht Ihre Bearbeitung nachvollziehbar.</p></div>
+            <div><span className="chip border border-white/10 bg-white/10 text-[#f2d8a6]"><ShieldCheck size={14} /> Einheitliches Prüfraster</span><h2 className="mt-4 max-w-4xl font-display text-3xl sm:text-4xl">Status → Rechtsgrundlage → Zuständigkeit → Risiko → Entscheidung → Begründung</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-white/58">Nach jeder Bearbeitung zeigt die App sehr genau, welche Entscheidung korrekt war, welche Auswahl falsch war und warum.</p></div>
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl border border-white/10 bg-white/[.07] p-4 text-center"><div className="text-3xl font-bold text-amber">{solved}<span className="text-base text-white/40">/{cases.length}</span></div><p className="mt-1 text-xs text-white/50">bearbeitet</p></div>
               <div className="rounded-2xl border border-white/10 bg-white/[.07] p-4 text-center"><div className="text-3xl font-bold text-amber">{average}</div><p className="mt-1 text-xs text-white/50">Ø Punkte</p></div>
@@ -103,12 +133,42 @@ export function CaseTrainerPage({
 
   const feedback = score === null ? "" : score >= 85 ? "Sehr sichere Bearbeitung" : score >= 65 ? "Solide mit Verbesserungsbedarf" : score >= 40 ? "Ansatz erkennbar" : "Prüfraster erneut anwenden";
   const criteria = breakdown ? [
-    ["Status erkannt", breakdown.status, "Das Aufenthaltsdokument bildet den Ausgangspunkt."],
-    ["Zuständigkeit", breakdown.authority, "Leistung, Aufenthalt und Beratung können bei verschiedenen Stellen liegen."],
-    ["Unterlagen", breakdown.documents, "Benennen Sie konkrete Nachweise statt nur „weitere Dokumente“."],
-    ["Nächster Schritt", breakdown.nextStep, "Die Handlung muss zuständig, realistisch und zeitlich logisch sein."],
-    ["Kommunikation", breakdown.communication, "Notiz und E-Mail sollen sachlich, knapp und handlungsorientiert sein."],
+    ["Status & Rechtsgrundlage", breakdown.status, "Status und Norm sind der Start der Prüfung. Ohne sie ist die spätere Entscheidung nicht belastbar."],
+    ["Zuständigkeit, Leistung & Priorität", breakdown.authority, "Die richtige Stelle, die richtige Leistungslogik und die richtige Reihenfolge müssen zusammenpassen."],
+    ["Unterlagen / Sachverhalt", breakdown.documents, "Benennen Sie konkrete Nachweise statt nur „weitere Dokumente“."],
+    ["Endentscheidung & nächster Schritt", breakdown.nextStep, "Die Entscheidung muss zur Aktenlage passen: bewilligen, ablehnen, nachfordern, weiterleiten oder Frist sichern."],
+    ["Arbeit, Risiko & Kommunikation", breakdown.communication, "Nebenbestimmung, Risiko, Aktennotiz und E-Mail müssen sachlich, knapp und handlungsorientiert sein."],
   ] as const : [];
+  const selectDiagnostics = active && score !== null ? selectFields.map((field) => fieldExplanation(field.label, answers[field.key], active.solution[field.key], field.why, active.solution.reasoning)) : [];
+  const textDiagnostics = active && score !== null ? [
+    {
+      label: "Fehlende Unterlagen",
+      correct: containsRelevant(answers.missing, active.solution.missing),
+      selected: answers.missing || "keine Angabe",
+      expected: active.solution.missing.join(", "),
+      why: containsRelevant(answers.missing, active.solution.missing)
+        ? "Gut: Du hast die entscheidenden Nachweise erkannt."
+        : `Hier fehlt Präzision. Erwartet werden insbesondere: ${active.solution.missing.join(", ")}. Allgemeine Wörter wie „Dokumente fehlen“ reichen in einer Akte nicht, weil die Person und die Behörde konkret wissen müssen, was nachzureichen ist.`,
+    },
+    {
+      label: "Nächster Schritt",
+      correct: containsRelevant(answers.nextStep, [active.solution.nextStep]),
+      selected: answers.nextStep || "keine Angabe",
+      expected: active.solution.nextStep,
+      why: containsRelevant(answers.nextStep, [active.solution.nextStep])
+        ? "Gut: Die Reihenfolge und Handlung passen zur Musterlösung."
+        : `Der nächste Schritt passt noch nicht genau. Erwartet wird: ${active.solution.nextStep}. Wichtig ist: Wer macht was, bei welcher Stelle, mit welchen Nachweisen und in welcher Reihenfolge?`,
+    },
+    {
+      label: "Aktennotiz und E-Mail",
+      correct: answers.note.trim().length >= 90 && answers.email.trim().length >= 100,
+      selected: `Aktennotiz: ${answers.note || "leer"}\nE-Mail: ${answers.email || "leer"}`,
+      expected: `${active.solution.note}\n\n${active.solution.email}`,
+      why: answers.note.trim().length >= 90 && answers.email.trim().length >= 100
+        ? "Formal ausreichend: Du hast dokumentiert und kommuniziert. Prüfe trotzdem, ob es sachlich, kurz und ohne falsche Zusage formuliert ist."
+        : "Die Kommunikation ist zu kurz oder zu unkonkret. Eine professionelle Aktennotiz enthält Anliegen, gesicherte Fakten, offene Punkte und Vereinbarung. Eine E-Mail enthält Betreff, Bezug, konkrete Bitte, Anlagen und Abschluss.",
+    },
+  ] : [];
 
   return (
     <div className="space-y-5">
@@ -141,7 +201,7 @@ export function CaseTrainerPage({
           {mobileStep === 1 && <div>
             <p className="eyebrow">Hauptfrage</p><h2 className="mt-2 font-display text-3xl leading-tight">{active.question}</h2>
             <div className="mt-6 space-y-4">
-              {(["status", "authority", "benefit", "work"] as const).map((key) => <label key={key} className="block text-sm font-bold">{({ status: "Aufenthaltsstatus", authority: "Zuständige Stelle", benefit: "Mögliche Leistung", work: "Erwerbstätigkeit" } as const)[key]}<select className="field mt-2" value={answers[key]} onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}><option value="">Bitte auswählen …</option>{active.options[key].map((option) => <option key={option}>{option}</option>)}</select></label>)}
+              {selectFields.map((field) => <label key={field.key} className="block text-sm font-bold">{field.label}<select className="field mt-2" value={answers[field.key]} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })}><option value="">Bitte auswählen …</option>{active.options[field.key].map((option) => <option key={option}>{option}</option>)}</select></label>)}
             </div>
           </div>}
 
@@ -162,13 +222,15 @@ export function CaseTrainerPage({
               <p className="eyebrow">Ergebnis</p><div className="mt-2 flex items-end justify-between gap-4"><h2 className="font-display text-3xl">{feedback}</h2><strong className="text-4xl">{score}<span className="text-base opacity-40">/100</span></strong></div>
             </div>
             <div className="space-y-3">{criteria.map(([label, points, hint]) => <div className="rounded-2xl border border-black/[.06] p-4 dark:border-white/[.08]" key={label}><div className="flex justify-between font-bold"><span>{label}</span><span className={points === 20 ? "text-sage" : points === 10 ? "text-amber" : "text-coral"}>{points}/20</span></div><p className="mt-2 text-sm leading-6 opacity-50">{hint}</p></div>)}</div>
+            <details className="rounded-2xl border border-coral/20 bg-coral/[.055] p-4" open><summary className="cursor-pointer font-bold">Meine Fehler im Detail</summary><div className="mt-4 space-y-3">{selectDiagnostics.map((item) => <div key={item.label} className="rounded-xl bg-white p-3 text-sm dark:bg-white/[.05]"><div className="flex items-center justify-between gap-2"><strong>{item.label}</strong><span className={item.correct ? "text-sage" : "text-coral"}>{item.correct ? "korrekt" : "nicht korrekt"}</span></div><p className="mt-2 text-xs leading-5"><strong>Deine Wahl:</strong> {item.selected}<br /><strong>Korrekt:</strong> {item.expected}</p><p className="mt-2 text-xs leading-5 opacity-70">{item.why}</p></div>)}</div></details>
+            <details className="rounded-2xl border border-amber/20 bg-amber/[.07] p-4"><summary className="cursor-pointer font-bold">Textantworten prüfen</summary><div className="mt-4 space-y-3">{textDiagnostics.map((item) => <div key={item.label} className="rounded-xl bg-white p-3 text-sm dark:bg-white/[.05]"><strong>{item.label}</strong><p className="mt-2 text-xs leading-5"><strong>Erwartet:</strong> {item.expected}</p><p className="mt-2 text-xs leading-5 opacity-70">{item.why}</p></div>)}</div></details>
             <details className="rounded-2xl bg-sand/35 p-4 dark:bg-white/[.04]"><summary className="cursor-pointer font-bold">Musterlösung anzeigen</summary><p className="mt-4 text-sm leading-6">{active.solution.reasoning}</p><p className="mt-3 text-sm"><strong>Nächster Schritt:</strong> {active.solution.nextStep}</p></details>
           </div>}
         </div>
 
         <footer className="sticky bottom-[72px] grid grid-cols-2 gap-3 border-t border-black/[.06] bg-white/95 p-4 backdrop-blur dark:border-white/[.07] dark:bg-[#10211f]/95">
           <button disabled={mobileStep === 0} onClick={() => setMobileStep(Math.max(0, mobileStep - 1))} className="btn-secondary">Zurück</button>
-          {mobileStep < 3 && <button disabled={(mobileStep === 1 && (!answers.status || !answers.authority)) || (mobileStep === 2 && answers.nextStep.length < 20)} onClick={() => setMobileStep(mobileStep + 1)} className="btn-primary">Weiter <ChevronRight size={18} /></button>}
+          {mobileStep < 3 && <button disabled={(mobileStep === 1 && (!answers.status || !answers.authority || !answers.legalBasis || !answers.decision)) || (mobileStep === 2 && answers.nextStep.length < 20)} onClick={() => setMobileStep(mobileStep + 1)} className="btn-primary">Weiter <ChevronRight size={18} /></button>}
           {mobileStep === 3 && <button disabled={answers.note.length < 40 || answers.email.length < 40} onClick={submit} className="btn-primary">Auswerten</button>}
           {mobileStep === 4 && <button onClick={() => setActiveId(null)} className="btn-primary">Nächster Fall</button>}
         </footer>
@@ -209,7 +271,7 @@ export function CaseTrainerPage({
             <div className="mt-5 flex flex-wrap gap-2">{["1 Status", "2 Anspruch", "3 Zuständigkeit", "4 Unterlagen", "5 Entscheidung", "6 Handlung"].map((step) => <span className="chip bg-[#f5f1e7] text-forest dark:bg-white/[.06] dark:text-white/70" key={step}>{step}</span>)}</div>
             <div className="my-7 h-px bg-black/[.06] dark:bg-white/[.08]" />
             <div className="grid gap-4 sm:grid-cols-2">
-              {(["status", "authority", "benefit", "work"] as const).map((key) => <label key={key} className="text-sm font-bold">{({ status: "1. Aufenthaltsstatus", authority: "2. Zuständige Stelle", benefit: "3. Mögliche Leistung", work: "4. Erwerbstätigkeit" } as const)[key]}<select disabled={score !== null} className="field mt-2 font-normal" value={answers[key]} onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}><option value="">Bitte fachlich einordnen …</option>{active.options[key].map((o) => <option key={o}>{o}</option>)}</select></label>)}
+              {selectFields.map((field, index) => <label key={field.key} className="text-sm font-bold">{index + 1}. {field.label}<select disabled={score !== null} className="field mt-2 font-normal" value={answers[field.key]} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })}><option value="">Bitte fachlich einordnen …</option>{active.options[field.key].map((o) => <option key={o}>{o}</option>)}</select><span className="mt-1 block text-[11px] font-normal leading-4 text-ink/38 dark:text-white/35">{field.why}</span></label>)}
             </div>
             <div className="mt-5 space-y-4">
               <label className="block text-sm font-bold">5. Fehlende oder zu prüfende Unterlagen <span className="font-normal text-ink/38 dark:text-white/35">— konkret benennen</span><textarea disabled={score !== null} className="field mt-2 min-h-28 resize-y font-normal" value={answers.missing} onChange={(e) => setAnswers({ ...answers, missing: e.target.value })} placeholder="Beispiel: vollständige Vorder- und Rückseite des Dokuments, Nachweis …" /></label>
@@ -219,7 +281,7 @@ export function CaseTrainerPage({
                 <label className="block text-sm font-bold">Behörden-E-Mail<textarea disabled={score !== null} className="field mt-2 min-h-40 resize-y font-normal" value={answers.email} onChange={(e) => setAnswers({ ...answers, email: e.target.value })} placeholder="Betreff, Bezug, konkrete Bitte, Anlagen, Abschluss" /></label>
               </div>
             </div>
-            {score === null ? <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center"><button onClick={submit} className="btn-primary w-full sm:w-auto" disabled={!answers.status || !answers.authority || answers.nextStep.length < 20}>Prüfung abschließen <ClipboardCheck size={18} /></button><p className="text-xs text-ink/40 dark:text-white/35">Die Auswertung erfolgt nach fünf transparenten Kriterien.</p></div> : (
+            {score === null ? <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center"><button onClick={submit} className="btn-primary w-full sm:w-auto" disabled={!answers.status || !answers.authority || !answers.legalBasis || !answers.decision || answers.nextStep.length < 20}>Prüfung abschließen <ClipboardCheck size={18} /></button><p className="text-xs text-ink/40 dark:text-white/35">Die Auswertung erfolgt nach Auswahlfeldern, Endentscheidung, Unterlagen, nächstem Schritt und Kommunikation.</p></div> : (
               <div className="mt-8 space-y-6">
                 <section className={`rounded-3xl border p-6 ${score >= 85 ? "border-sage/25 bg-sage/[.08]" : score >= 65 ? "border-amber/25 bg-amber/[.08]" : "border-coral/25 bg-coral/[.07]"}`}>
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="eyebrow">Auswertung</p><h3 className="mt-1 font-display text-3xl">{feedback}</h3><p className="mt-2 text-sm text-ink/55 dark:text-white/48">Ihr Versuch wurde gespeichert. Der Bestwert und die Versuchshistorie bleiben erhalten.</p></div><div className="text-5xl font-bold tabular-nums">{score}<span className="text-lg opacity-40">/100</span></div></div>
@@ -230,11 +292,35 @@ export function CaseTrainerPage({
                     {criteria.map(([label, points, hint]) => <div className="rounded-2xl border border-black/[.055] p-4 dark:border-white/[.075]" key={label}><div className="flex items-center justify-between"><span className="font-bold">{label}</span><span className={`chip ${points === 20 ? "bg-sage/12 text-sage" : points === 10 ? "bg-amber/12 text-amber" : "bg-coral/12 text-coral"}`}>{points}/20</span></div><p className="mt-2 text-xs leading-5 text-ink/48 dark:text-white/42">{hint}</p></div>)}
                   </div>
                 </section>
+                <section className="rounded-3xl border border-coral/20 bg-coral/[.045] p-5">
+                  <h3 className="font-bold">Ihre Fehleranalyse im Detail</h3>
+                  <p className="mt-2 text-sm leading-6 text-ink/55 dark:text-white/48">Hier sehen Sie jede Auswahl im Vergleich zur Musterlösung. Das ist der wichtigste Lernteil: nicht nur wissen, dass etwas falsch war, sondern warum.</p>
+                  <div className="mt-5 grid gap-3 lg:grid-cols-2">
+                    {selectDiagnostics.map((item) => <div key={item.label} className={`rounded-2xl border p-4 ${item.correct ? "border-sage/20 bg-sage/[.06]" : "border-coral/20 bg-white dark:bg-white/[.04]"}`}>
+                      <div className="flex items-center justify-between gap-3"><h4 className="font-bold">{item.label}</h4><span className={`chip ${item.correct ? "bg-sage/12 text-sage" : "bg-coral/12 text-coral"}`}>{item.correct ? "korrekt" : "Fehler"}</span></div>
+                      <div className="mt-3 space-y-2 text-sm leading-6"><p><strong>Ihre Wahl:</strong> {item.selected}</p><p><strong>Korrekt:</strong> {item.expected}</p><p className="text-ink/55 dark:text-white/48"><strong>Begründung:</strong> {item.why}</p></div>
+                    </div>)}
+                  </div>
+                </section>
+                <section className="rounded-3xl border border-amber/20 bg-amber/[.055] p-5">
+                  <h3 className="font-bold">Freitext-Auswertung</h3>
+                  <div className="mt-4 grid gap-3">
+                    {textDiagnostics.map((item) => <div key={item.label} className={`rounded-2xl border p-4 ${item.correct ? "border-sage/20 bg-white dark:bg-white/[.04]" : "border-amber/25 bg-white dark:bg-white/[.04]"}`}>
+                      <div className="flex items-center justify-between gap-3"><h4 className="font-bold">{item.label}</h4><span className={`chip ${item.correct ? "bg-sage/12 text-sage" : "bg-amber/12 text-amber"}`}>{item.correct ? "gut" : "verbessern"}</span></div>
+                      <p className="mt-3 text-sm leading-6"><strong>Erwartet:</strong> {item.expected}</p>
+                      <p className="mt-2 text-sm leading-6 text-ink/55 dark:text-white/48">{item.why}</p>
+                    </div>)}
+                  </div>
+                </section>
                 <section className="rounded-3xl border border-sage/20 bg-[#f7faf7] p-5 dark:bg-sage/[.045]">
                   <h3 className="flex items-center gap-2 font-bold"><ShieldCheck size={19} className="text-sage" /> Fachliche Musterlösung</h3>
                   <dl className="mt-5 grid gap-5 text-sm sm:grid-cols-2">
                     <div><dt className="eyebrow">Status</dt><dd className="mt-1 font-semibold">{active.solution.status}</dd></div>
+                    <div><dt className="eyebrow">Rechtsgrundlage</dt><dd className="mt-1 font-semibold">{active.solution.legalBasis}</dd></div>
                     <div><dt className="eyebrow">Zuständigkeit</dt><dd className="mt-1 font-semibold">{active.solution.authority}</dd></div>
+                    <div><dt className="eyebrow">Endentscheidung</dt><dd className="mt-1 font-semibold">{active.solution.decision}</dd></div>
+                    <div><dt className="eyebrow">Priorität</dt><dd className="mt-1 font-semibold">{active.solution.priority}</dd></div>
+                    <div><dt className="eyebrow">Risiko</dt><dd className="mt-1 font-semibold">{active.solution.risk}</dd></div>
                     <div className="sm:col-span-2"><dt className="eyebrow">Unterlagen</dt><dd className="mt-1">{active.solution.missing.join(", ")}</dd></div>
                     <div className="sm:col-span-2"><dt className="eyebrow">Nächster Schritt</dt><dd className="mt-1">{active.solution.nextStep}</dd></div>
                     <div className="sm:col-span-2"><dt className="eyebrow">Begründung</dt><dd className="mt-1 leading-6">{active.solution.reasoning}</dd></div>

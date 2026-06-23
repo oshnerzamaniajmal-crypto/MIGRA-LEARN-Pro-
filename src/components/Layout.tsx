@@ -5,10 +5,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-export type Page = "dashboard" | "learn" | "schemas" | "decisions" | "cases" | "quiz" | "documents" | "sources" | "plan" | "cards" | "templates" | "notes" | "exam";
+export type Page = "dashboard" | "academy" | "learn" | "schemas" | "decisions" | "cases" | "quiz" | "documents" | "sources" | "plan" | "cards" | "templates" | "notes" | "exam";
 
 const items: { id: Page; label: string; short: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Dashboard", short: "Start", icon: Home },
+  { id: "academy", label: "Akademie", short: "Akademie", icon: GraduationCap },
   { id: "learn", label: "Lernen", short: "Lernen", icon: BookOpenCheck },
   { id: "schemas", label: "Prüfschemata", short: "Schema", icon: GitBranch },
   { id: "decisions", label: "Entscheidungsboxen", short: "Prüfen", icon: Scale },
@@ -23,7 +24,7 @@ const items: { id: Page; label: string; short: string; icon: typeof Home }[] = [
   { id: "exam", label: "Abschlussprüfung", short: "Prüfung", icon: BookOpen },
 ];
 
-const mobileItems = items.filter((item) => ["dashboard", "learn", "decisions", "cases", "quiz"].includes(item.id));
+const mobileItems = items.filter((item) => ["dashboard", "academy", "learn", "cases", "quiz"].includes(item.id));
 
 export function Layout({ page, setPage, dark, setDark, children }: { page: Page; setPage: (page: Page) => void; dark: boolean; setDark: (dark: boolean) => void; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);

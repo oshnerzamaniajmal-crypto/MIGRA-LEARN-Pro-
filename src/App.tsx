@@ -11,13 +11,14 @@ const QuizPage = lazy(() => import("./pages/PracticePage").then((module) => ({ d
 const NotesPage = lazy(() => import("./pages/LibraryPage").then((module) => ({ default: module.NotesPage })));
 const TemplatesPage = lazy(() => import("./pages/LibraryPage").then((module) => ({ default: module.TemplatesPage })));
 const ExamPage = lazy(() => import("./pages/ExamPage").then((module) => ({ default: module.ExamPage })));
+const AcademyPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.AcademyPage })));
 const LearnPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.LearnPage })));
 const SchemaPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.SchemaPage })));
 const DecisionPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.DecisionPage })));
 const SourcesPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.SourcesPage })));
 const DocumentsPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.DocumentsPage })));
 
-const pages: Page[] = ["dashboard", "learn", "schemas", "decisions", "cases", "quiz", "documents", "sources", "plan", "cards", "templates", "notes", "exam"];
+const pages: Page[] = ["dashboard", "academy", "learn", "schemas", "decisions", "cases", "quiz", "documents", "sources", "plan", "cards", "templates", "notes", "exam"];
 const pageFromHash = (): Page => {
   const value = window.location.hash.replace("#/", "") as Page;
   return pages.includes(value) ? value : "dashboard";
@@ -42,6 +43,7 @@ export default function App() {
   };
   const content = {
     dashboard: <DashboardPage state={progress.state} streak={progress.streak} setPage={setPage} />,
+    academy: <AcademyPage state={progress.state} toggleTopic={progress.toggleTopic} />,
     learn: <LearnPage state={progress.state} toggleTopic={progress.toggleTopic} />,
     schemas: <SchemaPage />,
     decisions: <DecisionPage />,

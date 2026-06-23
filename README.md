@@ -13,16 +13,34 @@ Die Anwendung ist ein Lern- und Trainingssystem. Sie ist kein Rechtsberatungs- o
 
 Die Hauptnavigation folgt einer fachlichen Reihenfolge:
 
-1. **Lernen** – Gesetzesgrundlage, einfache Erklärung, Zweck, Systematik,
+1. **Akademie** – Lernpfade, Expertenmodule, tiefe Erklärungen, Fallakten,
+   Kontrollfragen, Reflexion, Mini-Quiz und Karteikarten
+2. **Lernen** – Gesetzesgrundlage, einfache Erklärung, Zweck, Systematik,
    Begriffe, Voraussetzungen, Rechtsfolge, Praxis, Fehler und Beispiele
-2. **Prüfschemata** – zehn interaktive Prüfschritte vom Sachverhalt bis zum
+3. **Prüfschemata** – zehn interaktive Prüfschritte vom Sachverhalt bis zum
    nächsten Verfahrensschritt
-3. **Entscheidungsboxen** – Kriterienchecks für nationales Visum und
-   Schutzformen mit Grün-/Gelb-/Rot-/Blau-Orientierung
-4. **Falltrainer** – Anwendung des zuvor gelernten Systems auf 60 Fälle
-5. **Quiz und Prüfung** – Wissenskontrolle und berufsnahe Transferaufgaben
-6. **Dokumente und Quellen** – Aktenchecklisten, Quellenstufen und sichtbarer
+4. **Entscheidungsboxen** – Entscheidungsbäume und Kriterienchecks für
+   nationales Visum, Schutzformen, Familiennachzug, Arbeitserlaubnis und
+   Leistungszuständigkeit
+5. **Falltrainer** – Anwendung des zuvor gelernten Systems auf 100 Fälle
+6. **Quiz und Prüfung** – Wissenskontrolle und berufsnahe Transferaufgaben
+7. **Dokumente und Quellen** – Aktenchecklisten, Quellenstufen und sichtbarer
    Rechtsstand
+
+Die Akademie enthält zusätzlich fünf Lernpfade:
+
+- Anfängerpfad
+- Sachbearbeiter-Modus
+- Berater-Modus
+- Expertenmodus
+- Prüfungsvorbereitung
+
+Jedes Akademie-Modul enthält Einführung, Lernziel, Rechtsgrundlagen, Zweck,
+Systematik, zentrale Begriffe, Voraussetzungen, Ermessensspielräume,
+Praxisprobleme, Fehler von Antragstellern, Fehler von Sachbearbeitern,
+Fristen, Unterlagen, Entscheidungskriterien, Ablehnungsgründe, Möglichkeiten
+bei Ablehnung, Praxisbeispiele, Expertentipps, Kontrollfragen, Reflexion,
+Mini-Quiz und Karteikarten.
 
 Die ersten ausführlichen Lernmodule behandeln:
 
@@ -64,6 +82,7 @@ Darstellungen werden deshalb nicht ungeprüft übernommen.
 ### Lerncockpit
 
 - gewichteter Gesamtfortschritt
+- Akademie-Fortschritt mit vertieften Modulen
 - mobile Fortschrittsringe für alle Kompetenzbereiche
 - Fortschritt aller sechs Lernwochen
 - Kompetenzprofil für fünf Fachbereiche
@@ -83,19 +102,24 @@ Darstellungen werden deshalb nicht ungeprüft übernommen.
 
 ### Professioneller Falltrainer
 
-- exakt 60 anonymisierte Übungsfälle
+- exakt 100 anonymisierte Übungsfälle
 - Aktenzeichen und verwaltungsähnlicher Aktenkopf
 - Personendaten, Sachverhalt und Aktenbestand
 - einheitliches Prüfraster:
 
 ```text
-Status → Anspruch → Zuständigkeit → Unterlagen → Entscheidung → nächster Schritt
+Status → Rechtsgrundlage → Zuständigkeit → Risiko → Entscheidung → Begründung
 ```
 
-- Eingabefelder für Einordnung, Aktennotiz und Behörden-E-Mail
+- Auswahlfelder für Status, Rechtsgrundlage, Zuständigkeit, Leistung,
+  Erwerbstätigkeit, Priorität, Risiko und Endentscheidung
+- Eingabefelder für fehlende Unterlagen, nächsten Schritt, Aktennotiz und
+  Behörden-E-Mail
 - transparente Bewertung in fünf Kriterien mit je 20 Punkten
 - Versuchshistorie und persönlicher Bestwert
-- kriteriumsbezogenes Feedback
+- kriteriumsbezogenes Feedback mit detaillierter Fehleranalyse
+- Vergleich: eigene Auswahl, Musterlösung, Korrektheit und ausführliche
+  Begründung, warum eine Entscheidung nicht passt
 - Musterlösung, Begründung und typische Fehler
 - konkrete Lernhinweise für Anfänger
 - passende Fachbegriffe zu jeder einzelnen Fallakte
@@ -105,14 +129,19 @@ Verteilung der Fallakten:
 
 | Bereich | Fälle |
 |---|---:|
-| Ausländerbehörde | 15 |
-| Jobcenter / SGB II | 15 |
-| Integration und Sprachförderung | 10 |
-| Migrationsberatung | 10 |
-| Gemischte Prüfungsfälle | 10 |
+| Ausländerbehörde | mindestens 20 |
+| Jobcenter / SGB II | mindestens 20 |
+| Integration und Sprachförderung | mindestens 15 |
+| Migrationsberatung | mindestens 15 |
+| Gemischte Prüfungsfälle | mindestens 15 |
 
 ### Weitere Lernwerkzeuge
 
+- vollständige Akademie mit 18 vertieften Modulen
+- fünf Lernpfade für verschiedene Rollen und Lernziele
+- vier Expertenschemata mit Nachweisen, Warnhinweisen und Entscheidungsnotiz
+- fünf Entscheidungsbäume mit Ja/Nein/Unklar-Logik und Red Flags
+- vier zusätzliche Premium-Fallakten mit 100-Punkte-Bewertung
 - 120 Karteikarten mit Kategorie und Schwierigkeitsgrad
 - swipe-ähnliche Karteikartenbedienung auf Touch-Geräten
 - 100 Quizfragen mit unmittelbaren Erklärungen
@@ -196,8 +225,11 @@ npm run dev
 ### 2. Welche Funktionen gibt es?
 
 - Dashboard mit Gesamtfortschritt, Kompetenzprofil, Lernserie und Badges
+- Akademie mit Lernpfaden, Vertiefungsmodulen und Premium-Fallakten
 - strukturierter Sechs-Wochen-Lernplan
-- Falltrainer mit 60 fiktiven Verwaltungsfällen und Bewertung bis 100 Punkte
+- Prüfschemata und Entscheidungsbäume für typische Verwaltungsfragen
+- Falltrainer mit 100 fiktiven Verwaltungsfällen und Bewertung bis 100 Punkte
+- detaillierte Fehlerdiagnose nach jeder Fallentscheidung
 - 120 Karteikarten und 100 Quizfragen mit direktem Feedback
 - Mustertexte für Aktennotizen und Behördenkommunikation
 - lokal gespeicherte Notizen
@@ -221,9 +253,11 @@ Browser kann deshalb zu einem leeren Lernstand führen.
 1. Öffnen Sie über die Navigation **Falltrainer** beziehungsweise mobil **Fälle**.
 2. Suchen oder filtern Sie eine Fallakte nach Bereich und Schwierigkeit.
 3. Lesen Sie Sachverhalt, Dokumente, Status und Hauptfrage vollständig.
-4. Arbeiten Sie die Schritte Einordnung, Prüfung und Kommunikation nacheinander ab.
+4. Wählen Sie Status, Rechtsgrundlage, Zuständigkeit, Leistung, Arbeit,
+   Priorität, Risiko und Endentscheidung.
 5. Senden Sie Ihre Bearbeitung zur Bewertung ab.
-6. Vergleichen Sie Punktzahl, Kriterienfeedback, Musterlösung, typische Fehler und Lernhinweis.
+6. Vergleichen Sie Punktzahl, Kriterienfeedback, Musterlösung, typische Fehler
+   und Ihre persönliche Fehleranalyse.
 
 Der persönliche Bestwert und alle Versuche werden automatisch gespeichert.
 Die Fälle enthalten ausschließlich fiktive Übungsdaten; auch in Freitextfeldern
@@ -248,7 +282,9 @@ Neue Fälle werden am einfachsten als weiteres Objekt im Array von
 - `facts`: vollständiger Sachverhalt
 - `documents`: vorhandene Dokumente
 - `question`: Hauptfrage des Falls
-- `solution`: Status, Zuständigkeit, Leistung, Erwerbstätigkeit, fehlende Unterlagen, nächster Schritt und Begründung
+- `solution`: Status, Rechtsgrundlage, Zuständigkeit, Leistung,
+  Erwerbstätigkeit, Priorität, Risiko, Endentscheidung, fehlende Unterlagen,
+  nächster Schritt und Begründung
 - optional `terms`: passende Fachbegriffe
 
 `id`, laufende Fallnummer, Antwortoptionen und Standardtexte werden in
@@ -258,8 +294,30 @@ Neue Fälle werden am einfachsten als weiteres Objekt im Array von
 npm run build
 ```
 
-fehlerfrei durchlaufen. Neue Fälle müssen realistisch, vollständig fiktiv und
-fachlich anhand aktueller offizieller Quellen geprüft sein.
+ausgeführt werden.
+
+### 6. Wie kann ich später neue Akademie-Module hinzufügen?
+
+Die tiefen Akademie-Inhalte liegen in:
+
+```text
+src/data/academyContent.ts
+```
+
+Dort können neue Inhalte ergänzt werden:
+
+- `extendedAcademyModules`: ausführliche Lernmodule
+- `learningPaths`: Lernpfade und Reihenfolge der Module
+- `expertSchemes`: Prüfschemata mit Schritten, Nachweisen und Warnungen
+- `decisionTrees`: Entscheidungsbäume mit Ja/Nein/Unklar-Logik
+- `premiumDossiers`: besonders ausführliche Fallakten mit 100-Punkte-Raster
+
+Wichtig: Rechtliche Inhalte müssen regelmäßig mit amtlichen Quellen geprüft
+werden. Dynamische Werte wie Gehaltsschwellen, Fristen, Verfahrenshinweise oder
+GEAS-Übergangsregeln sollten nie dauerhaft ungeprüft übernommen werden.
+
+Neue Fälle müssen realistisch, vollständig fiktiv und fachlich anhand aktueller
+offizieller Quellen geprüft sein.
 
 ## Lokale Speicherung
 

@@ -4,6 +4,7 @@ import {
   Landmark, ListChecks, Printer, Scale, Search, ShieldAlert, ShieldCheck,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { decisionTrees, expertSchemes, extendedAcademyModules, learningPaths, premiumDossiers } from "../data/academyContent";
 import { documentChecklists, legalSources, legalTopics } from "../data/legalKnowledge";
 import type { LegalArea, LegalTopic, ProgressState } from "../types";
 
@@ -36,6 +37,160 @@ const modes = [
   ["praxis", "Behördenpraxis"],
   ["faelle", "Beispiele"],
 ] as const;
+
+const academyTabs = [
+  ["kern", "Kernwissen"],
+  ["praxis", "Praxisprobleme"],
+  ["pruefung", "Prüfung"],
+  ["training", "Training"],
+] as const;
+
+export function AcademyPage({
+  state, toggleTopic,
+}: {
+  state: ProgressState;
+  toggleTopic: (id: string, title: string) => void;
+}) {
+  const [activePath, setActivePath] = useState(learningPaths[0].id);
+  const [activeModule, setActiveModule] = useState(extendedAcademyModules[0].id);
+  const [tab, setTab] = useState<(typeof academyTabs)[number][0]>("kern");
+  const [query, setQuery] = useState("");
+  const path = learningPaths.find((item) => item.id === activePath) ?? learningPaths[0];
+  const modulesInPath = extendedAcademyModules.filter((module) => path.moduleIds.includes(module.id));
+  const filteredModules = extendedAcademyModules.filter((module) =>
+    `${module.title} ${module.area} ${module.short} ${module.legalBasis.join(" ")}`.toLowerCase().includes(query.toLowerCase()),
+  );
+  const module = extendedAcademyModules.find((item) => item.id === activeModule) ?? modulesInPath[0] ?? extendedAcademyModules[0];
+  const complete = state.completedTopics.includes(`academy-${module.id}`);
+  const completedAcademy = extendedAcademyModules.filter((item) => state.completedTopics.includes(`academy-${item.id}`)).length;
+  const progress = Math.round((completedAcademy / extendedAcademyModules.length) * 100);
+
+  return <div className="space-y-6">
+    <section className="premium-hero overflow-hidden rounded-[2rem] p-6 text-white sm:p-9">
+      <div className="grid gap-7 xl:grid-cols-[1fr_360px] xl:items-end">
+        <div>
+          <StatusBadge tone="yellow"><GraduationCap size={14} />Vollständige Lernakademie</StatusBadge>
+          <h1 className="mt-5 max-w-5xl font-display text-4xl sm:text-6xl">Von Grundwissen zu echter Entscheidungssicherheit.</h1>
+          <p className="mt-4 max-w-3xl leading-7 text-white/64">Lernpfade, Expertenmodule, Fallakten, Kontrollfragen, Karteikarten, Prüfungsschemata und Entscheidungslogik – alles in einer festen Lernarchitektur.</p>
+        </div>
+        <div className="rounded-3xl border border-white/12 bg-white/[.07] p-5">
+          <div className="flex items-end justify-between gap-4"><div><div className="text-5xl font-bold text-amber">{progress}%</div><p className="mt-1 text-xs uppercase tracking-wider text-white/48">Akademie-Fortschritt</p></div><div className="text-right text-sm text-white/55"><strong className="text-white">{completedAcademy}</strong><br />von {extendedAcademyModules.length} Modulen</div></div>
+          <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-amber" style={{ width: `${progress}%` }} /></div>
+        </div>
+      </div>
+    </section>
+
+    <section className="grid gap-4 lg:grid-cols-5">
+      {learningPaths.map((item) => <button key={item.id} onClick={() => { setActivePath(item.id); setActiveModule(item.moduleIds[0]); setTab("kern"); }} className={`rounded-3xl border p-5 text-left transition hover:-translate-y-1 ${activePath === item.id ? "border-sage/30 bg-sage/[.09] shadow-soft" : "border-black/[.06] bg-white dark:border-white/[.08] dark:bg-white/[.04]"}`}>
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-sage">{item.audience}</p>
+        <h2 className="mt-2 font-display text-2xl">{item.title}</h2>
+        <p className="mt-2 min-h-12 text-sm leading-6 text-ink/52 dark:text-white/45">{item.subtitle}</p>
+        <p className="mt-4 text-xs leading-5 text-ink/42 dark:text-white/38">{item.moduleIds.length} Module · {item.checkpoint}</p>
+      </button>)}
+    </section>
+
+    <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
+      <aside className="space-y-4">
+        <div className="card-premium p-4">
+          <label className="relative block">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/35 dark:text-white/35" size={18} />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Akademie durchsuchen …" className="w-full rounded-2xl border border-black/[.06] bg-white py-3.5 pl-11 pr-4 text-sm outline-none focus:border-sage dark:border-white/[.08] dark:bg-white/[.06]" />
+          </label>
+          <p className="mt-4 text-xs leading-5 text-ink/45 dark:text-white/40">{path.promise}</p>
+        </div>
+        <div className="space-y-2">
+          {(query ? filteredModules : modulesInPath).map((item) => {
+            const done = state.completedTopics.includes(`academy-${item.id}`);
+            return <button key={item.id} onClick={() => { setActiveModule(item.id); setTab("kern"); }} className={`w-full rounded-2xl border p-4 text-left transition ${module.id === item.id ? "border-sage/35 bg-sage/[.09]" : "border-black/[.05] bg-white hover:border-sage/25 dark:border-white/[.07] dark:bg-white/[.04]"}`}>
+              <div className="flex items-start gap-3">
+                <span className={`mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl ${done ? "bg-sage text-white" : "bg-sand text-forest dark:bg-white/[.08] dark:text-amber"}`}>{done ? <Check size={17} /> : <BookOpenCheck size={17} />}</span>
+                <div><p className="font-bold">{item.title}</p><p className="mt-1 text-xs leading-5 text-ink/45 dark:text-white/42">{item.area} · {item.duration}</p></div>
+              </div>
+            </button>;
+          })}
+        </div>
+      </aside>
+
+      <article className="min-w-0 space-y-5">
+        <section className="card-premium overflow-hidden">
+          <div className="border-b border-black/[.06] p-6 dark:border-white/[.07] sm:p-8">
+            <div className="flex flex-wrap gap-2">
+              <StatusBadge>{module.area}</StatusBadge>
+              <StatusBadge tone="blue">{module.level}</StatusBadge>
+              <StatusBadge tone="yellow">{module.duration}</StatusBadge>
+            </div>
+            <h2 className="mt-5 font-display text-4xl sm:text-5xl">{module.title}</h2>
+            <p className="mt-3 max-w-3xl text-lg text-ink/55 dark:text-white/48">{module.short}</p>
+            <div className="mt-5 rounded-2xl border border-sage/18 bg-sage/[.07] p-4">
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-sage">Lernziel</p>
+              <p className="mt-2 leading-7">{module.learningGoal}</p>
+            </div>
+          </div>
+          <div className="overflow-x-auto border-b border-black/[.05] px-4 dark:border-white/[.07] sm:px-6">
+            <div className="flex min-w-max gap-1 py-3">
+              {academyTabs.map(([id, label]) => <button key={id} onClick={() => setTab(id)} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition ${tab === id ? "bg-forest text-white dark:bg-amber dark:text-forest" : "text-ink/48 hover:bg-sand dark:text-white/45 dark:hover:bg-white/[.06]"}`}>{label}</button>)}
+            </div>
+          </div>
+          <div className="p-6 sm:p-8">
+            {tab === "kern" && <div className="grid gap-5 lg:grid-cols-2">
+              <InfoCard icon={Info} title="Einführung" text={module.introduction} accent />
+              <InfoCard icon={ShieldCheck} title="Zweck" text={module.purpose} />
+              <InfoCard icon={Scale} title="Systematik" text={module.system} />
+              <ListCard title="Rechtsgrundlagen" items={module.legalBasis} />
+              <div className="lg:col-span-2"><h3 className="font-display text-3xl">Begriffe mit Expertenblick</h3><div className="mt-4 grid gap-4 lg:grid-cols-3">{module.keyTerms.map((term) => <div key={term.term} className="rounded-3xl border border-black/[.06] p-5 dark:border-white/[.08]"><p className="font-bold text-sage">{term.term}</p><p className="mt-2 text-sm leading-6"><strong>Einfach:</strong> {term.simple}</p><p className="mt-2 text-sm leading-6 text-ink/55 dark:text-white/48"><strong>Juristisch:</strong> {term.expert}</p><p className="mt-2 text-xs leading-5 text-ink/42 dark:text-white/38">Beispiel: {term.example}</p></div>)}</div></div>
+            </div>}
+            {tab === "praxis" && <div className="grid gap-5 lg:grid-cols-2">
+              <ListCard title="Voraussetzungen" items={module.requirements} good />
+              <ListCard title="Ermessen / Spielräume" items={module.discretion} />
+              <ListCard title="Typische Praxisprobleme" items={module.practiceProblems} />
+              <ListCard title="Fehler von Antragstellern" items={module.applicantErrors} danger />
+              <ListCard title="Fehler von Sachbearbeitern" items={module.staffErrors} danger />
+              <ListCard title="Fristen" items={module.deadlines} />
+              <ListCard title="Unterlagen" items={module.documents} />
+              <ListCard title="Entscheidungskriterien" items={module.criteria} good />
+              <ListCard title="Ablehnungsgründe" items={module.refusalReasons} danger />
+              <ListCard title="Möglichkeiten bei Ablehnung" items={module.remedies} />
+            </div>}
+            {tab === "pruefung" && <div className="space-y-5">
+              <div className="grid gap-5 lg:grid-cols-2">
+                <ExampleCard tone="green" label="Ausländerbehörde" text={module.authorityExample} />
+                <ExampleCard tone="blue" label="Beratung / Sozialarbeit" text={module.counsellingExample} />
+              </div>
+              <ListCard title="Expertentipps" items={module.expertTips} good />
+              <InfoCard icon={FileText} title="Verständliche Zusammenfassung" text={module.summary} accent />
+              <div className="grid gap-5 lg:grid-cols-2"><ListCard title="Kontrollfragen" items={module.controlQuestions} /><ListCard title="Offene Reflexionsfragen" items={module.reflectionQuestions} /></div>
+            </div>}
+            {tab === "training" && <div className="space-y-5">
+              <div className="grid gap-4 lg:grid-cols-2">{module.quiz.map((item) => <div key={item.question} className="rounded-3xl border border-black/[.06] p-5 dark:border-white/[.08]"><p className="font-bold">{item.question}</p><p className="mt-3 text-sm"><strong>Antwort:</strong> {item.answer}</p><p className="mt-2 text-sm leading-6 text-ink/55 dark:text-white/48"><strong>Warum:</strong> {item.why}</p></div>)}</div>
+              <div><h3 className="font-display text-3xl">Karteikarten</h3><div className="mt-4 grid gap-3 sm:grid-cols-2">{module.flashcards.map((card) => <div key={card.front} className="rounded-2xl bg-sand p-4 dark:bg-white/[.06]"><p className="text-xs font-bold uppercase tracking-[.16em] text-sage">{card.front}</p><p className="mt-2 text-sm leading-6">{card.back}</p></div>)}</div></div>
+            </div>}
+          </div>
+          <div className="flex flex-col gap-3 border-t border-black/[.06] p-5 dark:border-white/[.07] sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-ink/40 dark:text-white/38">Akademiemodul · Quellen im Bereich „Quellen“ prüfen · keine Rechtsberatung</p>
+            <button onClick={() => toggleTopic(`academy-${module.id}`, module.title)} className={`inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-bold ${complete ? "bg-sage/[.12] text-sage" : "bg-coral text-white"}`}>{complete ? <><CheckCircle2 size={18} />Modul gelernt</> : <>Modul abschließen <ChevronRight size={18} /></>}</button>
+          </div>
+        </section>
+
+        <section className="grid gap-5 lg:grid-cols-2">
+          {premiumDossiers.map((dossier) => <details key={dossier.id} className="card-premium p-5">
+            <summary className="cursor-pointer list-none"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-sage">{dossier.category} · {dossier.difficulty}</p><h3 className="mt-2 font-display text-2xl">{dossier.title}</h3><p className="mt-2 text-sm leading-6 text-ink/50 dark:text-white/44">{dossier.overview}</p></div><ChevronRight className="mt-2 shrink-0 text-coral" /></div></summary>
+            <div className="mt-5 space-y-4 border-t border-black/[.06] pt-5 dark:border-white/[.07]">
+              <div className="grid gap-3 rounded-2xl bg-sand/45 p-4 text-sm dark:bg-white/[.04] sm:grid-cols-2">{Object.entries(dossier.person).map(([key, value]) => <div key={key}><p className="text-[10px] font-bold uppercase tracking-wider text-sage">{key}</p><p className="mt-1 font-semibold">{value}</p></div>)}</div>
+              <p className="text-sm leading-7">{dossier.facts}</p>
+              <ListCard title="Dokumente" items={dossier.documents} />
+              <ListCard title="Aufgaben" items={dossier.tasks} good />
+              <ListCard title="Musterlösung" items={dossier.modelSolution} />
+              <ListCard title="Typische Fehler" items={dossier.typicalErrors} danger />
+              <div className="rounded-3xl border border-amber/20 bg-amber/[.07] p-5"><p className="font-bold">Bewertung mit 100 Punkten</p><div className="mt-3 space-y-3">{dossier.score.map((row) => <div className="flex gap-3 text-sm" key={row.label}><span className="w-12 shrink-0 font-bold text-sage">{row.points} P</span><span><strong>{row.label}:</strong> {row.expectation}</span></div>)}</div></div>
+              <p className="rounded-2xl bg-sage/[.08] p-4 text-sm leading-6"><strong>Lernhinweis:</strong> {dossier.learningHint}</p>
+              <div className="flex flex-wrap gap-2">{dossier.terms.map((term) => <span key={term} className="chip bg-sand text-forest dark:bg-white/[.06] dark:text-white/70">{term}</span>)}</div>
+            </div>
+          </details>)}
+        </section>
+      </article>
+    </div>
+  </div>;
+}
 
 export function LearnPage({
   state, toggleTopic,
@@ -179,6 +334,24 @@ export function SchemaPage() {
   const toggle = (index: number) => setChecked((current) => current.includes(index) ? current.filter((item) => item !== index) : [...current, index]);
   return <div className="space-y-6">
     <div><p className="eyebrow">Interaktives Prüfraster</p><h1 className="font-display text-4xl sm:text-6xl">Vom Sachverhalt zur begründeten Prüfung</h1><p className="mt-3 max-w-3xl text-ink/55 dark:text-white/48">Das Schema erzwingt die richtige Reihenfolge. Es ersetzt keine rechtliche Subsumtion.</p></div>
+    <section className="grid gap-4 xl:grid-cols-2">
+      {expertSchemes.map((scheme) => <details key={scheme.id} className="card-premium p-5">
+        <summary className="cursor-pointer list-none">
+          <div className="flex items-start justify-between gap-4">
+            <div><p className="text-xs font-bold uppercase tracking-[.16em] text-sage">{scheme.area}</p><h2 className="mt-2 font-display text-2xl">{scheme.title}</h2><p className="mt-2 text-sm leading-6 text-ink/50 dark:text-white/44">{scheme.useWhen}</p></div>
+            <ChevronRight className="mt-2 shrink-0 text-coral" />
+          </div>
+        </summary>
+        <div className="mt-5 space-y-3 border-t border-black/[.06] pt-5 dark:border-white/[.07]">
+          {scheme.steps.map((step, index) => <div key={step.title} className="rounded-2xl border border-black/[.06] p-4 dark:border-white/[.08]">
+            <div className="flex gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sand font-bold text-forest dark:bg-white/[.08] dark:text-amber">{index + 1}</span><div><p className="font-bold">{step.title}</p><p className="mt-2 text-sm leading-6 text-ink/55 dark:text-white/48">{step.questions.join(" · ")}</p></div></div>
+            <p className="mt-3 rounded-xl bg-sage/[.07] p-3 text-xs leading-5"><strong>Nachweise:</strong> {step.evidence.join(", ")}</p>
+            <p className="mt-2 text-xs leading-5 text-coral"><strong>Achtung:</strong> {step.warning}</p>
+          </div>)}
+          <p className="rounded-2xl bg-amber/[.08] p-4 text-sm leading-6"><strong>Entscheidungsnotiz:</strong> {scheme.decisionNote}</p>
+        </div>
+      </details>)}
+    </section>
     <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
       <aside className="card-premium h-fit p-4"><label className="text-xs font-bold uppercase tracking-wider text-sage">Thema auswählen</label><select value={activeId} onChange={(event) => { setActiveId(event.target.value); setChecked([]); }} className="mt-3 w-full rounded-2xl border border-black/[.06] bg-white p-3.5 dark:border-white/[.08] dark:bg-[#122321]">{legalTopics.map((item) => <option value={item.id} key={item.id}>{item.title}</option>)}</select><div className="mt-5 rounded-2xl bg-sand p-4 text-sm leading-6 text-forest dark:bg-white/[.06] dark:text-white/60"><strong>{checked.length}/10 Schritte</strong><br />Haken bedeutet nur: geprüft – nicht automatisch erfüllt.</div></aside>
       <section className="card-premium p-5 sm:p-8"><TopicMeta topic={topic} /><h2 className="mt-5 font-display text-4xl">{topic.title}</h2><div className="mt-7 space-y-3">{topic.scheme.map((step, index) => <button onClick={() => toggle(index)} key={step} className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition ${checked.includes(index) ? "border-sage/25 bg-sage/[.08]" : "border-black/[.06] hover:border-sage/25 dark:border-white/[.08]"}`}><span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl font-bold ${checked.includes(index) ? "bg-sage text-white" : "bg-sand text-forest dark:bg-white/[.08] dark:text-amber"}`}>{checked.includes(index) ? <Check size={18} /> : index + 1}</span><div><p className="font-bold">{step}</p><p className="mt-1 text-xs text-ink/42 dark:text-white/38">Ergebnis und offene Tatsachen in der Akte dokumentieren.</p></div></button>)}</div></section>
@@ -232,6 +405,28 @@ export function DecisionPage() {
 
   return <div className="space-y-6">
     <section className="premium-hero rounded-[2rem] p-6 text-white sm:p-9"><StatusBadge tone="yellow"><Gavel size={14} />Orientierung, keine Behördenentscheidung</StatusBadge><h1 className="mt-5 font-display text-4xl sm:text-6xl">Entscheidungsboxen mit Begründung</h1><p className="mt-4 max-w-3xl leading-7 text-white/62">Grün bedeutet nicht „bewilligt“. Die Boxen zeigen, ob der Sachverhalt lernlogisch vollständig, problematisch oder offen ist.</p></section>
+    <section className="grid gap-4 xl:grid-cols-2">
+      {decisionTrees.map((tree) => <details key={tree.id} className="card-premium p-5">
+        <summary className="cursor-pointer list-none">
+          <div className="flex items-start justify-between gap-4">
+            <div><p className="text-xs font-bold uppercase tracking-[.16em] text-sage">{tree.area}</p><h2 className="mt-2 font-display text-2xl">{tree.title}</h2><p className="mt-2 text-sm leading-6 text-ink/50 dark:text-white/44">{tree.startQuestion}</p></div>
+            <ChevronRight className="mt-2 shrink-0 text-coral" />
+          </div>
+        </summary>
+        <div className="mt-5 space-y-3 border-t border-black/[.06] pt-5 dark:border-white/[.07]">
+          {tree.nodes.map((node, index) => <div key={node.question} className="rounded-2xl border border-black/[.06] p-4 dark:border-white/[.08]">
+            <p className="font-bold">{index + 1}. {node.question}</p>
+            <div className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
+              <p className="rounded-xl bg-emerald-500/[.08] p-3 leading-5"><strong>Ja:</strong> {node.yes}</p>
+              <p className="rounded-xl bg-red-500/[.07] p-3 leading-5"><strong>Nein:</strong> {node.no}</p>
+              <p className="rounded-xl bg-amber/[.10] p-3 leading-5"><strong>Unklar:</strong> {node.unsure}</p>
+            </div>
+          </div>)}
+          <p className="rounded-2xl bg-sage/[.08] p-4 text-sm leading-6"><strong>Ergebnislogik:</strong> {tree.result}</p>
+          <ListCard title="Red Flags" items={tree.redFlags} danger />
+        </div>
+      </details>)}
+    </section>
     <div className="grid gap-3 sm:grid-cols-2">{[["visa", "Nationales Visum D", "Pass, Zweck, Finanzierung, Zuständigkeit"], ["protection", "Schutzformen", "Verfolgung, ernsthafter Schaden, Rückkehrgefahr"]].map(([id, title, desc]) => <button key={id} onClick={() => { setTool(id as typeof tool); setAnswers({}); }} className={`rounded-3xl border p-5 text-left ${tool === id ? "border-sage/30 bg-sage/[.08]" : "border-black/[.06] bg-white dark:border-white/[.08] dark:bg-white/[.04]"}`}><p className="font-display text-2xl">{title}</p><p className="mt-2 text-sm text-ink/48 dark:text-white/42">{desc}</p></button>)}</div>
     <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
       <section className="card-premium p-5 sm:p-7"><h2 className="font-display text-3xl">{tool === "visa" ? "Kriteriencheck Visum D" : "Kriteriencheck Schutz"}</h2><div className="mt-6 space-y-3">{criteria.map((item, index) => <div key={item.id} className="rounded-2xl border border-black/[.06] p-4 dark:border-white/[.08]"><div className="flex gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-sand text-xs font-bold text-forest dark:bg-white/[.08] dark:text-amber">{index + 1}</span><div><p className="font-semibold">{item.label}</p><p className="mt-1 text-xs leading-5 text-ink/42 dark:text-white/38">{item.hint}</p></div></div><div className="mt-4 grid grid-cols-3 gap-2">{[["yes", "Ja"], ["no", "Nein"], ["unknown", "Unklar"]].map(([value, label]) => <button onClick={() => answer(item.id, value as Answer)} key={value} className={`rounded-xl px-2 py-2.5 text-xs font-bold ${answers[item.id] === value ? value === "yes" ? "bg-emerald-600 text-white" : value === "no" ? "bg-red-600 text-white" : "bg-amber text-forest" : "bg-sand text-ink/55 dark:bg-white/[.06] dark:text-white/55"}`}>{label}</button>)}</div></div>)}</div></section>
