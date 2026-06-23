@@ -1,5 +1,55 @@
 export type Category = "Ausländerrecht" | "Jobcenter / SGB II" | "Integration" | "Beratung" | "Behördenkommunikation";
 export type Difficulty = "leicht" | "mittel" | "schwer";
+export type LegalArea = "Grundlagen" | "Visum" | "Erwerbsmigration" | "Familie" | "Schutz" | "Duldung & Bleiberecht";
+export type SourceTrust = "A" | "B" | "C" | "D";
+
+export interface LegalSource {
+  id: string;
+  title: string;
+  publisher: string;
+  type: "Gesetz" | "EU-Recht" | "Behörde" | "Fachportal" | "Lernunterlage";
+  trust: SourceTrust;
+  date: string;
+  checkedAt: string;
+  url?: string;
+  fileName?: string;
+  pages?: string;
+  areas: LegalArea[];
+  note: string;
+  outdated?: boolean;
+}
+
+export interface LegalTopic {
+  id: string;
+  title: string;
+  subtitle: string;
+  area: LegalArea;
+  legalBasis: string[];
+  lawSummary: string;
+  simpleExplanation: string;
+  purpose: string;
+  systematics: string;
+  keyTerms: { term: string; explanation: string }[];
+  requirements: string[];
+  legalConsequence: string;
+  decisionType: string;
+  exclusions: string[];
+  documents: string[];
+  authorities: string[];
+  deadlines: string[];
+  practice: string[];
+  typicalErrors: string[];
+  memoryAids: string[];
+  scheme: string[];
+  examples: {
+    positive: string;
+    negative: string;
+    borderline: string;
+  };
+  sourceIds: string[];
+  legalStatus: string;
+  warning?: string;
+}
 
 export interface DayTask {
   id: string;
@@ -106,6 +156,7 @@ export interface Note {
 export interface ProgressState {
   version: number;
   completedTasks: string[];
+  completedTopics: string[];
   caseScores: Record<string, number>;
   caseAttempts: {
     caseId: string;

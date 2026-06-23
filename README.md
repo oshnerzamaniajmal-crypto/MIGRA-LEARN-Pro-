@@ -9,6 +9,56 @@ Eine vollständig lokale React-Lernanwendung für die strukturierte Vorbereitung
 
 Die Anwendung ist ein Lern- und Trainingssystem. Sie ist kein Rechtsberatungs- oder Entscheidungswerkzeug.
 
+## Neue Lernlogik: erst Recht verstehen, dann Fälle lösen
+
+Die Hauptnavigation folgt einer fachlichen Reihenfolge:
+
+1. **Lernen** – Gesetzesgrundlage, einfache Erklärung, Zweck, Systematik,
+   Begriffe, Voraussetzungen, Rechtsfolge, Praxis, Fehler und Beispiele
+2. **Prüfschemata** – zehn interaktive Prüfschritte vom Sachverhalt bis zum
+   nächsten Verfahrensschritt
+3. **Entscheidungsboxen** – Kriterienchecks für nationales Visum und
+   Schutzformen mit Grün-/Gelb-/Rot-/Blau-Orientierung
+4. **Falltrainer** – Anwendung des zuvor gelernten Systems auf 60 Fälle
+5. **Quiz und Prüfung** – Wissenskontrolle und berufsnahe Transferaufgaben
+6. **Dokumente und Quellen** – Aktenchecklisten, Quellenstufen und sichtbarer
+   Rechtsstand
+
+Die ersten ausführlichen Lernmodule behandeln:
+
+- Aufenthaltstitel allgemein
+- nationales Visum D
+- Blaue Karte EU
+- Chancenkarte
+- Familiennachzug
+- Flüchtlingsschutz
+- subsidiären Schutz
+- nationales Abschiebungsverbot
+- Duldung
+- Niederlassungserlaubnis
+
+Jedes Thema trennt gesetzesnahe Zusammenfassung, didaktischen Kommentar,
+Behördenpraxis und Fallbeispiel. Dynamische Werte wie Gehaltsschwellen werden
+nicht als dauerhaft feste Zahl behandelt, sondern müssen in der jeweils
+aktuellen amtlichen Quelle geprüft werden.
+
+## Quellen- und Qualitätsmodell
+
+Die App ordnet Quellen vier Vertrauensstufen zu:
+
+| Stufe | Bedeutung |
+|---|---|
+| A | amtlicher Gesetzestext, EU-Recht oder zuständige Behörde |
+| B | offizielles Fachportal oder Verwaltungshinweis |
+| C | Fachliteratur, seriöse Expertise oder eigene Lernunterlage |
+| D | ungeprüfter Hinweis, nicht als Entscheidungsgrundlage verwenden |
+
+Die bereitgestellten PDF-/DOCX-Unterlagen wurden als Sekundärquellen
+ausgewertet. Amtliche Quellen haben Vorrang. Besonders wichtig ist der
+GEAS-Stichtag **12. Juni 2026**: § 3 AsylG verweist nun für internationalen
+Schutz auf die Verordnung (EU) 2024/1347; § 4 AsylG ist weggefallen. Ältere
+Darstellungen werden deshalb nicht ungeprüft übernommen.
+
 ## Premium-Funktionsumfang
 
 ### Lerncockpit
@@ -224,6 +274,7 @@ in `localStorage` gespeichert. Die interne Datenstruktur besitzt eine Versionsnu
 Gespeichert werden:
 
 - erledigte Tagesaufgaben
+- abgeschlossene Rechtsthemen
 - Fallbestwerte
 - sämtliche Fallversuche mit Bewertungsrubrik
 - Quizverlauf

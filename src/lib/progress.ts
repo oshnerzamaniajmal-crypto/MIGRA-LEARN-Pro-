@@ -1,6 +1,7 @@
 import { cases } from "../data/cases";
 import { flashcards } from "../data/flashcards";
 import { weeks } from "../data/weeks";
+import { legalTopics } from "../data/legalKnowledge";
 import type { Category, ProgressState } from "../types";
 
 export const competencyCategories: Category[] = [
@@ -25,7 +26,8 @@ export function totalProgress(state: ProgressState) {
   const cards = state.learnedCards.length / flashcards.length;
   const quizRounds = Math.min(state.quizHistory.length / 10, 1);
   const exam = state.examScore ? state.examScore / 100 : 0;
-  return Math.round((tasks * .34 + solvedCases * .28 + cards * .16 + quizRounds * .12 + exam * .1) * 100);
+  const topics = state.completedTopics.length / legalTopics.length;
+  return Math.round((topics * .28 + tasks * .24 + solvedCases * .22 + cards * .11 + quizRounds * .09 + exam * .06) * 100);
 }
 
 export function competencyScores(state: ProgressState) {
@@ -57,7 +59,7 @@ export function earnedBadges(state: ProgressState, streak: number) {
   const solved = Object.keys(state.caseScores).length;
   const avgCase = solved ? Object.values(state.caseScores).reduce((a, b) => a + b, 0) / solved : 0;
   return [
-    { id: "start", name: "Erster Schritt", description: "Erste Lernaufgabe abgeschlossen", earned: state.completedTasks.length >= 1, target: 1, current: state.completedTasks.length },
+    { id: "start", name: "Erster Schritt", description: "Erstes Rechtsthema gelernt", earned: state.completedTopics.length >= 1, target: 1, current: state.completedTopics.length },
     { id: "status", name: "Status-Profi", description: "Woche 1 vollständig gemeistert", earned: state.completedTasks.filter((id) => id.startsWith("w1")).length === 6, target: 6, current: state.completedTasks.filter((id) => id.startsWith("w1")).length },
     { id: "sgb", name: "SGB-II-Kompass", description: "Woche 3 vollständig gemeistert", earned: state.completedTasks.filter((id) => id.startsWith("w3")).length === 6, target: 6, current: state.completedTasks.filter((id) => id.startsWith("w3")).length },
     { id: "akten", name: "Aktenroutine", description: "10 Fälle gelöst", earned: solved >= 10, target: 10, current: solved },

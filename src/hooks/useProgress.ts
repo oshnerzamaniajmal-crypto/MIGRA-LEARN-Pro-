@@ -4,8 +4,9 @@ import type { Note, ProgressState } from "../types";
 const STORAGE_KEY = "migration-verwaltung-progress-v1";
 
 const initialState: ProgressState = {
-  version: 2,
+  version: 3,
   completedTasks: [],
+  completedTopics: [],
   caseScores: {},
   caseAttempts: [],
   quizHistory: [],
@@ -27,8 +28,9 @@ const today = () => localDate();
 const migrate = (saved: Partial<ProgressState>): ProgressState => ({
   ...initialState,
   ...saved,
-  version: 2,
+  version: 3,
   completedTasks: Array.isArray(saved.completedTasks) ? saved.completedTasks : [],
+  completedTopics: Array.isArray(saved.completedTopics) ? saved.completedTopics : [],
   caseScores: saved.caseScores && typeof saved.caseScores === "object" ? saved.caseScores : {},
   caseAttempts: Array.isArray(saved.caseAttempts) ? saved.caseAttempts : [],
   quizHistory: Array.isArray(saved.quizHistory) ? saved.quizHistory : [],
@@ -72,6 +74,17 @@ export function useProgress() {
       completedTasks: completed ? current.completedTasks.filter((item) => item !== id) : [...current.completedTasks, id],
     }));
     if (!completed) log(`Aufgabe erledigt: ${title}`, "Aufgabe");
+  };
+
+  const toggleTopic = (id: string, title: string) => {
+    const completed = state.completedTopics.includes(id);
+    setState((current) => ({
+      ...current,
+      completedTopics: completed
+        ? current.completedTopics.filter((item) => item !== id)
+        : [...current.completedTopics, id],
+    }));
+    if (!completed) log(`Lerneinheit abgeschlossen: ${title}`, "Lernen");
   };
 
   const saveCaseScore = (
@@ -149,5 +162,5 @@ export function useProgress() {
     return count;
   }, [state.streakDates]);
 
-  return { state, toggleTask, saveCaseScore, saveQuiz, markCard, upsertNote, deleteNote, saveExam, reset, streak };
+  return { state, toggleTask, toggleTopic, saveCaseScore, saveQuiz, markCard, upsertNote, deleteNote, saveExam, reset, streak };
 }

@@ -10,6 +10,7 @@ import type { ProgressState } from "../types";
 import type { Page } from "../components/Layout";
 import { ProgressRing } from "../components/ProgressRing";
 import { LegalNotice } from "../components/LegalNotice";
+import { legalTopics } from "../data/legalKnowledge";
 
 const palette = ["bg-[#c77752]", "bg-[#d7a84d]", "bg-[#6f9b88]", "bg-[#748fa5]", "bg-[#987da5]"];
 
@@ -47,29 +48,29 @@ export function DashboardPage({ state, streak, setPage }: { state: ProgressState
             <span className="chip mb-5 border border-white/10 bg-white/10 text-[#f7e6c6]"><Sparkles size={14} /> Persönliches Lerncockpit</span>
             <p className="mb-2 text-sm font-semibold text-white/55">Guten Tag — bereit für den nächsten sicheren Prüfschritt?</p>
             <h1 className="max-w-4xl font-display text-[2.15rem] leading-[1.04] min-[370px]:text-[2.55rem] sm:text-6xl">Vom Wissen zur sicheren Fallentscheidung.</h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-white/68">Ihr Lernstand wird aus Aufgaben, Fällen, Quiz, Karteikarten und Prüfungsergebnissen berechnet.</p>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-white/68">Lernen Sie zuerst Gesetz, Zweck und Prüfschema. Danach folgen Entscheidungsboxen, Fälle, Quiz und Prüfung.</p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <button onClick={() => setPage(nextTask ? "plan" : "exam")} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber px-5 py-3.5 font-bold text-forest shadow-lg shadow-black/10 transition hover:-translate-y-0.5">
-                {nextTask ? "Lerneinheit fortsetzen" : "Abschlussprüfung öffnen"} <ArrowRight size={18} />
+              <button onClick={() => setPage("learn")} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber px-5 py-3.5 font-bold text-forest shadow-lg shadow-black/10 transition hover:-translate-y-0.5">
+                Rechtsgrundlagen lernen <ArrowRight size={18} />
               </button>
-              <button onClick={() => setPage("cases")} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5 font-bold text-white transition hover:bg-white/15">
-                <BriefcaseBusiness size={18} /> Falltraining starten
+              <button onClick={() => setPage("decisions")} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5 font-bold text-white transition hover:bg-white/15">
+                <BriefcaseBusiness size={18} /> Entscheidung üben
               </button>
             </div>
           </div>
           <div className="mx-auto rounded-[2rem] border border-white/10 bg-black/10 p-5 text-center backdrop-blur-md">
             <ProgressRing value={progress} size={165} label="Gesamtstand" />
-            <p className="mt-2 text-xs text-white/50">{state.completedTasks.length + solved + state.learnedCards.length} Lernaktionen erfasst</p>
+            <p className="mt-2 text-xs text-white/50">{state.completedTopics.length + state.completedTasks.length + solved + state.learnedCards.length} Lernaktionen erfasst</p>
           </div>
         </div>
       </section>
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {[
+          { icon: BookOpenCheck, value: `${state.completedTopics.length}/${legalTopics.length}`, label: "Rechtsthemen", detail: "Gesetz vor Fall", tone: "text-[#245f58] bg-[#6f9b88]/12" },
           { icon: BriefcaseBusiness, value: `${solved}/${cases.length}`, label: "Fälle gelöst", detail: `Ø ${avgCase} Punkte`, tone: "text-[#c77752] bg-[#c77752]/10" },
           { icon: Target, value: `${avgQuiz}%`, label: "Quiz-Sicherheit", detail: `${state.quizHistory.length} Runden`, tone: "text-[#6f9b88] bg-[#6f9b88]/12" },
           { icon: Flame, value: `${streak}`, label: "Tage Lernserie", detail: streak ? "Serie aktiv" : "Heute beginnen", tone: "text-[#d7a84d] bg-[#d7a84d]/12" },
-          { icon: Award, value: `${earned.length}/8`, label: "Badges erreicht", detail: `${badges.length - earned.length} offen`, tone: "text-[#8773a2] bg-[#8773a2]/12" },
         ].map(({ icon: Icon, value, label, detail, tone }) => (
           <div className="metric-card group" key={label}>
             <div className={`grid h-10 w-10 place-items-center rounded-2xl sm:h-12 sm:w-12 ${tone}`}><Icon size={21} /></div>
@@ -176,7 +177,7 @@ export function DashboardPage({ state, streak, setPage }: { state: ProgressState
         <section className="card-premium overflow-hidden p-0">
           <div className="grid h-full md:grid-cols-[.7fr_1.3fr]">
             <div className="grid min-h-44 place-items-center bg-forest p-7 text-white dark:bg-[#102b29]"><GraduationCap size={62} className="text-amber" /></div>
-            <div className="p-6 sm:p-7"><p className="eyebrow">Lernprinzip</p><h2 className="font-display text-3xl">Erst einordnen, dann entscheiden.</h2><p className="mt-3 text-sm leading-6 text-ink/58 dark:text-white/50">Auch Anfänger können komplexe Fälle lösen, wenn sie konsequent dieselbe Reihenfolge nutzen und Unsicherheiten sichtbar machen.</p><button onClick={() => setPage("cases")} className="mt-5 text-sm font-bold text-coral">Prüfraster trainieren →</button></div>
+            <div className="p-6 sm:p-7"><p className="eyebrow">Lernprinzip</p><h2 className="font-display text-3xl">Erst verstehen, dann prüfen.</h2><p className="mt-3 text-sm leading-6 text-ink/58 dark:text-white/50">Gesetz, Zweck, Begriffe und Voraussetzungen kommen vor der Fallentscheidung. So entsteht übertragbares Wissen statt bloßer Antwortmuster.</p><button onClick={() => setPage("learn")} className="mt-5 text-sm font-bold text-coral">Lernsystem öffnen →</button></div>
           </div>
         </section>
       </div>

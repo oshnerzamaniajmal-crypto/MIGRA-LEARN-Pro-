@@ -11,8 +11,13 @@ const QuizPage = lazy(() => import("./pages/PracticePage").then((module) => ({ d
 const NotesPage = lazy(() => import("./pages/LibraryPage").then((module) => ({ default: module.NotesPage })));
 const TemplatesPage = lazy(() => import("./pages/LibraryPage").then((module) => ({ default: module.TemplatesPage })));
 const ExamPage = lazy(() => import("./pages/ExamPage").then((module) => ({ default: module.ExamPage })));
+const LearnPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.LearnPage })));
+const SchemaPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.SchemaPage })));
+const DecisionPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.DecisionPage })));
+const SourcesPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.SourcesPage })));
+const DocumentsPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.DocumentsPage })));
 
-const pages: Page[] = ["dashboard", "plan", "cases", "cards", "quiz", "templates", "notes", "exam"];
+const pages: Page[] = ["dashboard", "learn", "schemas", "decisions", "cases", "quiz", "documents", "sources", "plan", "cards", "templates", "notes", "exam"];
 const pageFromHash = (): Page => {
   const value = window.location.hash.replace("#/", "") as Page;
   return pages.includes(value) ? value : "dashboard";
@@ -37,10 +42,15 @@ export default function App() {
   };
   const content = {
     dashboard: <DashboardPage state={progress.state} streak={progress.streak} setPage={setPage} />,
+    learn: <LearnPage state={progress.state} toggleTopic={progress.toggleTopic} />,
+    schemas: <SchemaPage />,
+    decisions: <DecisionPage />,
     plan: <PlanPage state={progress.state} toggleTask={progress.toggleTask} />,
     cases: <CaseTrainerPage state={progress.state} saveCaseScore={progress.saveCaseScore} />,
     cards: <FlashcardsPage state={progress.state} markCard={progress.markCard} />,
     quiz: <QuizPage state={progress.state} saveQuiz={progress.saveQuiz} />,
+    documents: <DocumentsPage />,
+    sources: <SourcesPage />,
     templates: <TemplatesPage />,
     notes: <NotesPage state={progress.state} upsertNote={progress.upsertNote} deleteNote={progress.deleteNote} />,
     exam: <ExamPage state={progress.state} saveExam={progress.saveExam} />,
