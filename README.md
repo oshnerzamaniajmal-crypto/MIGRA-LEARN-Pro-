@@ -72,17 +72,30 @@ Jeder Paragraph ist als eigenes Datenobjekt aufgebaut mit:
 - Praxisfällen aus Ausländerbehörde, Jobcenter und Beratung
 - Karteikarten, Quiz, offene Fragen, Lückentext und Fallprüfung
 
-Der Startbestand umfasst unter anderem:
+Die Paragraphen-Bibliothek umfasst inzwischen rund 100 zentrale Norm- und
+Themenkarten, unter anderem aus:
 
-- § 4 AufenthG – Erfordernis eines Aufenthaltstitels
-- § 5 AufenthG – allgemeine Erteilungsvoraussetzungen
-- § 6 AufenthG – Visum
-- § 27 AufenthG – Familiennachzug
-- § 60a AufenthG – Duldung
-- § 3 AsylG / EU-Qualifikationsrecht – Flüchtlingsschutz
-- § 7 SGB II – Leistungsberechtigung
-- § 44 AufenthG – Integrationskurs
-- § 10 StAG – Anspruchseinbürgerung
+- AufenthG: Passpflicht, Aufenthaltstitel, Erteilungsvoraussetzungen, Visum,
+  Aufenthaltserlaubnis, Verlängerung, Niederlassungserlaubnis,
+  Erwerbsmigration, Studium, Ausbildung, Chancenkarte, humanitäre Titel,
+  Familiennachzug, Duldung, Ausbildungsduldung, Beschäftigungsduldung,
+  Aufenthaltsbeendigung und Fiktionswirkung
+- AsylG / EU-Schutzrecht: Asylantrag, Antragstellung, Mitwirkung, Anhörung,
+  Flüchtlingsschutz, Unzulässigkeit, offensichtlich unbegründete Anträge,
+  Abschiebungsanordnung, Aufenthaltsgestattung und Klagefristen
+- SGB II / SGB III / SGB XII: Bürgergeld, Hilfebedürftigkeit, Einkommen,
+  Vermögen, Unterkunftskosten, Antrag, vorläufige Entscheidung,
+  Berufsberatung, Vermittlungsbudget und Sozialhilfe-Abgrenzung
+- AsylbLG: Leistungsberechtigte, Grundleistungen, Krankheit,
+  Schwangerschaft/Geburt und sonstige Leistungen
+- FreizügG/EU: EU-Freizügigkeit, Familienangehörige, Aufenthaltskarte und
+  Verlustfeststellung
+- StAG: Ermessenseinbürgerung, Anspruchseinbürgerung, Mehrstaatigkeit und
+  Einbürgerungsurkunde
+- VwVfG / VwGO: Untersuchungsgrundsatz, Anhörung, Verwaltungsakt,
+  Begründung, Ermessen, Klagefrist, Eilrechtsschutz und einstweilige Anordnung
+- BeschV und IntV: Beschäftigungszustimmung, Integrationskurs,
+  Teilnahmeberechtigung und Kostenbeitrag
 
 Jedes Thema trennt gesetzesnahe Zusammenfassung, didaktischen Kommentar,
 Behördenpraxis und Fallbeispiel. Dynamische Werte wie Gehaltsschwellen werden

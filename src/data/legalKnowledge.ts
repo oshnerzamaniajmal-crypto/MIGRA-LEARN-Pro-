@@ -64,6 +64,66 @@ export const legalSources: LegalSource[] = [
     note: "Anschauliche Dokumentenkunde. Wegen des Alters nur für Grundbegriffe und nicht für aktuelle Fristen oder Rechtsfolgen verwenden.",
     outdated: true,
   },
+  {
+    id: "sgb2", title: "Sozialgesetzbuch Zweites Buch (SGB II)", publisher: "Bundesministerium der Justiz / Bundesamt für Justiz",
+    type: "Gesetz", trust: "A", date: "laufende Fassung", checkedAt: "24.06.2026",
+    url: "https://www.gesetze-im-internet.de/sgb_2/", areas: ["Grundlagen"],
+    note: "Amtlicher Ausgangspunkt für Bürgergeld, Jobcenter-Zuständigkeit, Bedarf, Unterkunftskosten, Einkommen, Mitwirkung und Eingliederung.",
+  },
+  {
+    id: "sgb3", title: "Sozialgesetzbuch Drittes Buch (SGB III)", publisher: "Bundesministerium der Justiz / Bundesamt für Justiz",
+    type: "Gesetz", trust: "A", date: "laufende Fassung", checkedAt: "24.06.2026",
+    url: "https://www.gesetze-im-internet.de/sgb_3/", areas: ["Grundlagen", "Erwerbsmigration"],
+    note: "Amtliche Grundlage für Arbeitsförderung, Beratung, Vermittlung, Ausbildung und Leistungen der Bundesagentur für Arbeit.",
+  },
+  {
+    id: "sgb12", title: "Sozialgesetzbuch Zwölftes Buch (SGB XII)", publisher: "Bundesministerium der Justiz / Bundesamt für Justiz",
+    type: "Gesetz", trust: "A", date: "laufende Fassung", checkedAt: "24.06.2026",
+    url: "https://www.gesetze-im-internet.de/sgb_12/", areas: ["Grundlagen"],
+    note: "Amtliche Grundlage für Sozialhilfe, insbesondere bei nicht erwerbsfähigen Personen und Abgrenzung zum SGB II.",
+  },
+  {
+    id: "asylblg", title: "Asylbewerberleistungsgesetz (AsylbLG)", publisher: "Bundesministerium der Justiz / Bundesamt für Justiz",
+    type: "Gesetz", trust: "A", date: "laufende Fassung", checkedAt: "24.06.2026",
+    url: "https://www.gesetze-im-internet.de/asylblg/", areas: ["Schutz", "Duldung & Bleiberecht"],
+    note: "Amtliche Grundlage für Leistungen während Asylverfahren, Duldung und bestimmte Aufenthaltskonstellationen.",
+  },
+  {
+    id: "stag", title: "Staatsangehörigkeitsgesetz (StAG)", publisher: "Bundesministerium der Justiz / Bundesamt für Justiz",
+    type: "Gesetz", trust: "A", date: "laufende Fassung", checkedAt: "24.06.2026",
+    url: "https://www.gesetze-im-internet.de/stag/", areas: ["Grundlagen"],
+    note: "Amtliche Grundlage für Erwerb, Verlust und Einbürgerung der deutschen Staatsangehörigkeit.",
+  },
+  {
+    id: "freizuegg", title: "Freizügigkeitsgesetz/EU (FreizügG/EU)", publisher: "Bundesministerium der Justiz / Bundesamt für Justiz",
+    type: "Gesetz", trust: "A", date: "laufende Fassung", checkedAt: "24.06.2026",
+    url: "https://www.gesetze-im-internet.de/freiz_gg_eu_2004/", areas: ["Grundlagen", "Familie"],
+    note: "Amtliche Grundlage für EU-Freizügigkeit, Familienangehörige und Verlustfeststellung.",
+  },
+  {
+    id: "vwvfg", title: "Verwaltungsverfahrensgesetz (VwVfG)", publisher: "Bundesministerium der Justiz / Bundesamt für Justiz",
+    type: "Gesetz", trust: "A", date: "laufende Fassung", checkedAt: "24.06.2026",
+    url: "https://www.gesetze-im-internet.de/vwvfg/", areas: ["Grundlagen"],
+    note: "Amtliche Grundlage für Verwaltungsverfahren, Anhörung, Ermessen, Verwaltungsakt und Rücknahme/Widerruf.",
+  },
+  {
+    id: "vwgo", title: "Verwaltungsgerichtsordnung (VwGO)", publisher: "Bundesministerium der Justiz / Bundesamt für Justiz",
+    type: "Gesetz", trust: "A", date: "laufende Fassung", checkedAt: "24.06.2026",
+    url: "https://www.gesetze-im-internet.de/vwgo/", areas: ["Grundlagen"],
+    note: "Amtliche Grundlage für verwaltungsgerichtlichen Rechtsschutz, Klage, Eilverfahren und Fristen.",
+  },
+  {
+    id: "beschv", title: "Beschäftigungsverordnung (BeschV)", publisher: "Bundesministerium der Justiz / Bundesamt für Justiz",
+    type: "Gesetz", trust: "A", date: "laufende Fassung", checkedAt: "24.06.2026",
+    url: "https://www.gesetze-im-internet.de/beschv_2013/", areas: ["Erwerbsmigration"],
+    note: "Amtliche Verordnung zur Beschäftigung von Ausländerinnen und Ausländern, BA-Zustimmung und Sonderzugängen.",
+  },
+  {
+    id: "intv", title: "Integrationskursverordnung (IntV)", publisher: "Bundesministerium der Justiz / Bundesamt für Justiz",
+    type: "Gesetz", trust: "A", date: "laufende Fassung", checkedAt: "24.06.2026",
+    url: "https://www.gesetze-im-internet.de/intv/", areas: ["Grundlagen"],
+    note: "Amtliche Verordnung zu Integrationskurs, Zulassung, Teilnahme, Kostenbeitrag, Test und Kursdurchführung.",
+  },
 ];
 
 const sharedScheme = [
