@@ -13,19 +13,63 @@ Die Anwendung ist ein Lern- und Trainingssystem. Sie ist kein Rechtsberatungs- o
 
 Die Hauptnavigation folgt einer fachlichen Reihenfolge:
 
-1. **Akademie** – Lernpfade, Expertenmodule, tiefe Erklärungen, Fallakten,
+1. **Termin- & Mail-Assistant** – MVP-Modul für Termine, E-Mails, Aufgaben,
+   Lieferungen, Inbox-Vorschläge, Suche, Projekte und verbundene Konten
+2. **Akademie** – Lernpfade, Expertenmodule, tiefe Erklärungen, Fallakten,
    Kontrollfragen, Reflexion, Mini-Quiz und Karteikarten
-2. **Lernen** – Gesetzesgrundlage, einfache Erklärung, Zweck, Systematik,
+3. **Lernen** – Gesetzesgrundlage, einfache Erklärung, Zweck, Systematik,
    Begriffe, Voraussetzungen, Rechtsfolge, Praxis, Fehler und Beispiele
-3. **Prüfschemata** – zehn interaktive Prüfschritte vom Sachverhalt bis zum
+4. **Prüfschemata** – zehn interaktive Prüfschritte vom Sachverhalt bis zum
    nächsten Verfahrensschritt
-4. **Entscheidungsboxen** – Entscheidungsbäume und Kriterienchecks für
+5. **Entscheidungsboxen** – Entscheidungsbäume und Kriterienchecks für
    nationales Visum, Schutzformen, Familiennachzug, Arbeitserlaubnis und
    Leistungszuständigkeit
-5. **Falltrainer** – Anwendung des zuvor gelernten Systems auf 100 Fälle
-6. **Quiz und Prüfung** – Wissenskontrolle und berufsnahe Transferaufgaben
-7. **Dokumente und Quellen** – Aktenchecklisten, Quellenstufen und sichtbarer
+6. **Falltrainer** – Anwendung des zuvor gelernten Systems auf 100 Fälle
+7. **Quiz und Prüfung** – Wissenskontrolle und berufsnahe Transferaufgaben
+8. **Dokumente und Quellen** – Aktenchecklisten, Quellenstufen und sichtbarer
    Rechtsstand
+
+## Neues MVP-Modul: Termin-, E-Mail-, To-do- und Delivery-Assistant
+
+Die App enthält zusätzlich ein neues Modul **Termin- & Mail-Assistant**. Dieses
+Modul wird in Etappen entwickelt.
+
+### Etappe 1 – Grundstruktur mit Beispiel-Daten
+
+Fertig in dieser Version:
+
+- Demo-Login ohne echte Konto-Verbindung
+- Dashboard mit Heute, Morgen und Wochenüberblick
+- Premium-Fokuskarte „Was ist jetzt wichtig?“
+- Fokusmodus für die nächste wichtige Sache ohne Ablenkung
+- elegante Tages-Timeline mit Uhrzeiten
+- Risiko-Karte für Fristen, offene Antworten und unklare Termine
+- intelligente Hilfe-Fragen wie „Was soll ich jetzt tun?“
+- Kalenderansicht
+- Aufgabenansicht mit Beispiel-Aufgaben
+- E-Mail-Ansicht mit Beispiel-E-Mails
+- Lieferungsansicht mit Beispiel-Lieferung
+- Einstellungen / verbundene Konten als vorbereitete Demo-Ansicht
+- Suchleiste und Kategorie-Filter
+- Detailansichten für Termin, Aufgabe, E-Mail und Lieferung
+- manuelle Aufgabe im Dashboard erstellen
+- Inbox-Vorschläge im Dashboard als Demo-Bereich
+- Datenschutz-Hinweise: keine echte E-Mail wird gelesen, gesendet oder gelöscht
+
+Wichtig: Das Assistant-Modul ist derzeit eine lokale MVP-/UI-Version mit
+Demo-Daten. Für echte Gmail-, Outlook- und Kalender-Synchronisierung braucht es
+später ein Backend mit OAuth, Token-Speicherung, Verschlüsselung, Audit-Log und
+API-Routen.
+
+### Weitere Etappen
+
+- Etappe 2: Prisma-Datenbankmodell mit Tabellen für Nutzer, Konten, E-Mails,
+  Termine, Aufgaben, Lieferungen, Projekte, Erinnerungen und Audit-Logs
+- Etappe 3: Gmail-Integration mit OAuth
+- Etappe 4: Outlook-/Microsoft-Integration mit Microsoft Graph
+- Etappe 5: KI-Erkennung für Termine, Aufgaben, Fristen, Lieferungen und
+  Antwortbedarf
+- Etappe 6: Design-, Sicherheits-, Fehlerbehandlungs- und Deployment-Optimierung
 
 Die Akademie enthält zusätzlich fünf Lernpfade:
 

@@ -17,8 +17,9 @@ const SchemaPage = lazy(() => import("./pages/KnowledgePage").then((module) => (
 const DecisionPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.DecisionPage })));
 const SourcesPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.SourcesPage })));
 const DocumentsPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.DocumentsPage })));
+const AssistantPage = lazy(() => import("./pages/AssistantPage").then((module) => ({ default: module.AssistantPage })));
 
-const pages: Page[] = ["dashboard", "academy", "learn", "schemas", "decisions", "cases", "quiz", "documents", "sources", "plan", "cards", "templates", "notes", "exam"];
+const pages: Page[] = ["dashboard", "assistant", "academy", "learn", "schemas", "decisions", "cases", "quiz", "documents", "sources", "plan", "cards", "templates", "notes", "exam"];
 const pageFromHash = (): Page => {
   const value = window.location.hash.replace("#/", "") as Page;
   return pages.includes(value) ? value : "dashboard";
@@ -43,6 +44,7 @@ export default function App() {
   };
   const content = {
     dashboard: <DashboardPage state={progress.state} streak={progress.streak} setPage={setPage} />,
+    assistant: <AssistantPage />,
     academy: <AcademyPage state={progress.state} toggleTopic={progress.toggleTopic} />,
     learn: <LearnPage state={progress.state} toggleTopic={progress.toggleTopic} />,
     schemas: <SchemaPage />,
