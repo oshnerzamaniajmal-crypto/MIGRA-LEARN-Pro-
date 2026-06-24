@@ -1,0 +1,33 @@
+{
+  "name": "Migration & Verwaltung Lernakademie",
+  "short_name": "Migra Learn",
+  "description": "Professionelle Lernakademie für Aufenthaltsrecht, Verwaltung, Jobcenter, Integration und Beratung.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#091615",
+  "theme_color": "#173f3a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Falltrainer",
+      "short_name": "Fälle",
+      "url": "/#/cases",
+      "description": "Fallakten bearbeiten und Fehleranalyse erhalten"
+    },
+    {
+      "name": "Akademie",
+      "short_name": "Akademie",
+      "url": "/#/academy",
+      "description": "Lernpfade und Expertenmodule öffnen"
+    }
+  ]
+}

@@ -42,6 +42,36 @@ const fieldExplanation = (label: string, selected: string, expected: string, why
     : `Nicht korrekt. Du hast „${selected || "keine Auswahl"}“ gewählt; fachlich erwartet wird „${expected}“. ${why} Im konkreten Fall gilt außerdem: ${reasoning}`,
 });
 
+const riskTone = (risk: string) => {
+  if (risk.includes("Aufenthaltsbeendigung") || risk.includes("Frist") || risk.includes("existenziell")) return "bg-coral/12 text-coral border-coral/25";
+  if (risk.includes("Arbeitsaufnahme") || risk.includes("Datenschutz")) return "bg-amber/14 text-amber border-amber/25";
+  return "bg-sage/12 text-sage border-sage/25";
+};
+
+const completeExamples = [
+  {
+    title: "Beispiel 1: Duldung und Ausbildung",
+    context: "Eine Person mit Duldung hat einen Ausbildungsvertrag. Die Nebenbestimmung ist unklar.",
+    decision: "Keine Zusage zum Ausbildungsbeginn. Zuerst Beschäftigungserlaubnis, Nebenbestimmung, Identitätsklärung und mögliche Ausbildungsduldung prüfen.",
+    mistake: "Falsch wäre: „Mit Ausbildungsvertrag darf er automatisch anfangen.“ Das übersieht, dass Duldung kein Aufenthaltstitel ist und Arbeit/Ausbildung erlaubnispflichtig sein kann.",
+    protocol: "Status: Duldung · Rechtsgrundlage: AufenthG · Zuständigkeit: Ausländerbehörde · Risiko: Arbeitsaufnahme ohne Erlaubnis · Entscheidung: weitere Prüfung/Nachforderung.",
+  },
+  {
+    title: "Beispiel 2: Jobcenter und Mietangebot",
+    context: "Eine leistungsberechtigte Familie möchte umziehen und hat ein teureres Wohnungsangebot.",
+    decision: "Vor Unterschrift Zusicherung, Angemessenheit, Umzugsgrund und Unterkunftskosten prüfen.",
+    mistake: "Falsch wäre: „Einfach unterschreiben, das Jobcenter zahlt schon.“ Das kann zu ungedeckten Mietkosten führen.",
+    protocol: "Status: Aufenthaltserlaubnis · Rechtsgrundlage: SGB II/SGB X · Zuständigkeit: Jobcenter · Risiko: Leistungsunterbrechung · Entscheidung: Nachweise und Zusicherung vor Entscheidung.",
+  },
+  {
+    title: "Beispiel 3: Familiennachzug mit Frist",
+    context: "Eine schutzberechtigte Person möchte Ehefrau und Kinder nachholen. Urkunden sind unvollständig.",
+    decision: "Status der Referenzperson, Frist, Familienverhältnis, Urkundenlage und Auslandsvertretung getrennt prüfen; bei komplexer Lage Fachberatung einschalten.",
+    mistake: "Falsch wäre: „Ohne vollständige Urkunden ist alles unmöglich.“ Urkundenprobleme sind Beweisfragen; Alternativnachweise und Zumutbarkeit können relevant sein.",
+    protocol: "Status: Aufenthaltserlaubnis · Rechtsgrundlage: Familiennachzug §§ 27 ff. AufenthG · Zuständigkeit: Auslandsvertretung/ABH · Risiko: Fristverlust · Entscheidung: Frist sichern und Fachprüfung.",
+  },
+];
+
 export function CaseTrainerPage({
   state,
   saveCaseScore,
@@ -99,6 +129,20 @@ export function CaseTrainerPage({
               <div className="rounded-2xl border border-white/10 bg-white/[.07] p-4 text-center"><div className="text-3xl font-bold text-amber">{average}</div><p className="mt-1 text-xs text-white/50">Ø Punkte</p></div>
             </div>
           </div>
+        </section>
+        <section className="grid gap-4 lg:grid-cols-3">
+          {completeExamples.map((example) => <details key={example.title} className="card-premium p-5">
+            <summary className="cursor-pointer list-none">
+              <p className="eyebrow">Komplettes Musterbeispiel</p>
+              <h2 className="mt-2 font-display text-2xl">{example.title}</h2>
+              <p className="mt-2 text-sm leading-6 text-ink/50 dark:text-white/44">{example.context}</p>
+            </summary>
+            <div className="mt-5 space-y-3 border-t border-black/[.06] pt-5 text-sm leading-6 dark:border-white/[.07]">
+              <p><strong>Richtige Entscheidung:</strong> {example.decision}</p>
+              <p className="rounded-2xl border border-coral/20 bg-coral/[.055] p-3"><strong>Typischer Fehler:</strong> {example.mistake}</p>
+              <p className="rounded-2xl border border-sage/20 bg-sage/[.06] p-3"><strong>Entscheidungsprotokoll:</strong> {example.protocol}</p>
+            </div>
+          </details>)}
         </section>
         <div className="grid gap-3 md:grid-cols-[1fr_220px_180px]">
           <label className="relative"><Search className="absolute left-4 top-3.5 text-ink/30 dark:text-white/30" size={18} /><input className="field pl-11" aria-label="Fälle durchsuchen" placeholder="Name, Status oder Problem suchen …" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
@@ -260,6 +304,11 @@ export function CaseTrainerPage({
               <h2 className="flex items-center gap-2 font-bold"><Info size={18} /> Passende Fachbegriffe</h2>
               <div className="mt-3 flex flex-wrap gap-2">{active.terms.map((term) => <span className="chip border border-sage/15 bg-sage/[.08] text-sage" key={term}>{term}</span>)}</div>
             </div>
+            <div className={`mt-6 rounded-2xl border p-4 ${riskTone(active.solution.risk)}`}>
+              <p className="text-xs font-bold uppercase tracking-[.16em]">Risikoampel Musterlösung</p>
+              <p className="mt-2 text-sm font-bold">{active.solution.risk}</p>
+              <p className="mt-2 text-xs leading-5 opacity-75">Diese Ampel zeigt, welches Risiko bei falscher oder vorschneller Entscheidung im Mittelpunkt steht.</p>
+            </div>
             <div className="mt-6 flex gap-3 rounded-2xl border border-amber/18 bg-amber/[.07] p-4">
               <Info className="mt-0.5 shrink-0 text-amber" size={18} /><p className="text-xs leading-5"><strong>Anfänger-Hinweis:</strong> Verlassen Sie sich nicht auf die Kurzbezeichnung im Aktenkopf. In der Praxis zählen Dokument, Gültigkeit und Nebenbestimmung.</p>
             </div>
@@ -269,6 +318,13 @@ export function CaseTrainerPage({
             <p className="eyebrow">III. Prüfauftrag</p>
             <h2 className="mt-2 font-display text-3xl leading-tight">{active.question}</h2>
             <div className="mt-5 flex flex-wrap gap-2">{["1 Status", "2 Anspruch", "3 Zuständigkeit", "4 Unterlagen", "5 Entscheidung", "6 Handlung"].map((step) => <span className="chip bg-[#f5f1e7] text-forest dark:bg-white/[.06] dark:text-white/70" key={step}>{step}</span>)}</div>
+            <section className="mt-5 rounded-3xl border border-black/[.06] bg-[#fbfaf5] p-5 dark:border-white/[.08] dark:bg-white/[.035]">
+              <h3 className="font-bold">Entscheidungsprotokoll ausfüllen</h3>
+              <p className="mt-2 text-sm leading-6 text-ink/55 dark:text-white/48">Ziel ist nicht nur die richtige Auswahl, sondern eine begründete Verwaltungsentscheidung: Was ist sicher, was ist offen, welches Risiko besteht und welche Entscheidung ist deshalb zulässig?</p>
+              <div className="mt-4 grid gap-3 text-xs sm:grid-cols-4">
+                {["Sachverhalt sichern", "Rechtsgrundlage wählen", "Risiko bewerten", "Entscheidung begründen"].map((item) => <div key={item} className="rounded-2xl bg-sand/55 p-3 font-bold text-forest dark:bg-white/[.06] dark:text-white/70">{item}</div>)}
+              </div>
+            </section>
             <div className="my-7 h-px bg-black/[.06] dark:bg-white/[.08]" />
             <div className="grid gap-4 sm:grid-cols-2">
               {selectFields.map((field, index) => <label key={field.key} className="text-sm font-bold">{index + 1}. {field.label}<select disabled={score !== null} className="field mt-2 font-normal" value={answers[field.key]} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })}><option value="">Bitte fachlich einordnen …</option>{active.options[field.key].map((o) => <option key={o}>{o}</option>)}</select><span className="mt-1 block text-[11px] font-normal leading-4 text-ink/38 dark:text-white/35">{field.why}</span></label>)}
@@ -285,6 +341,18 @@ export function CaseTrainerPage({
               <div className="mt-8 space-y-6">
                 <section className={`rounded-3xl border p-6 ${score >= 85 ? "border-sage/25 bg-sage/[.08]" : score >= 65 ? "border-amber/25 bg-amber/[.08]" : "border-coral/25 bg-coral/[.07]"}`}>
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="eyebrow">Auswertung</p><h3 className="mt-1 font-display text-3xl">{feedback}</h3><p className="mt-2 text-sm text-ink/55 dark:text-white/48">Ihr Versuch wurde gespeichert. Der Bestwert und die Versuchshistorie bleiben erhalten.</p></div><div className="text-5xl font-bold tabular-nums">{score}<span className="text-lg opacity-40">/100</span></div></div>
+                </section>
+                <section className="rounded-3xl border border-black/[.06] bg-[#fbfaf5] p-5 dark:border-white/[.08] dark:bg-white/[.035]">
+                  <h3 className="font-bold">Ihr Entscheidungsprotokoll</h3>
+                  <div className="mt-4 grid gap-3 text-sm lg:grid-cols-2">
+                    <p><strong>Status:</strong> {answers.status || "nicht gewählt"}</p>
+                    <p><strong>Rechtsgrundlage:</strong> {answers.legalBasis || "nicht gewählt"}</p>
+                    <p><strong>Zuständigkeit:</strong> {answers.authority || "nicht gewählt"}</p>
+                    <p><strong>Priorität:</strong> {answers.priority || "nicht gewählt"}</p>
+                    <p><strong>Risiko:</strong> <span className={`rounded-full border px-2 py-1 text-xs font-bold ${riskTone(answers.risk)}`}>{answers.risk || "nicht gewählt"}</span></p>
+                    <p><strong>Endentscheidung:</strong> {answers.decision || "nicht gewählt"}</p>
+                    <p className="lg:col-span-2"><strong>Nächster Schritt:</strong> {answers.nextStep || "nicht formuliert"}</p>
+                  </div>
                 </section>
                 <section>
                   <h3 className="text-lg font-bold">Kriterienbezogenes Feedback</h3>

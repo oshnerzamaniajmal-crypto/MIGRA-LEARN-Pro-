@@ -1,11 +1,11 @@
 import {
   ArrowRight, Award, BookOpenCheck, BriefcaseBusiness, CheckCircle2, Clock3,
-  Flame, GraduationCap, Lightbulb, Sparkles, Target, TrendingUp,
+  BrainCircuit, Download, Flame, GraduationCap, Lightbulb, Smartphone, Sparkles, Target, TrendingUp,
 } from "lucide-react";
 import { cases } from "../data/cases";
 import { flashcards } from "../data/flashcards";
 import { weeks } from "../data/weeks";
-import { competencyScores, earnedBadges, totalProgress } from "../lib/progress";
+import { caseErrorDiary, competencyScores, earnedBadges, learningCoach, totalProgress } from "../lib/progress";
 import type { ProgressState } from "../types";
 import type { Page } from "../components/Layout";
 import { ProgressRing } from "../components/ProgressRing";
@@ -33,6 +33,8 @@ export function DashboardPage({ state, streak, setPage }: { state: ProgressState
   const recent = state.activities.slice(0, 4);
   const completedAcademy = extendedAcademyModules.filter((module) => state.completedTopics.includes(`academy-${module.id}`)).length;
   const academyProgress = Math.round((completedAcademy / extendedAcademyModules.length) * 100);
+  const coach = learningCoach(state);
+  const errorDiary = caseErrorDiary(state).slice(0, 5);
   const recommendation = weakest.value < 35
     ? `Beginnen Sie heute mit ${weakest.category}. Dort entsteht der größte Fortschritt.`
     : avgCase < 70
@@ -82,6 +84,45 @@ export function DashboardPage({ state, streak, setPage }: { state: ProgressState
             <div className="mt-1 text-xs text-ink/45 dark:text-white/42">{detail}</div>
           </div>
         ))}
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[1.1fr_.9fr]">
+        <section className="card-premium p-5 sm:p-7">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex gap-3">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-sage/[.12] text-sage"><BrainCircuit size={23} /></span>
+              <div>
+                <p className="eyebrow">Persönlicher Lerncoach</p>
+                <h2 className="font-display text-3xl">{coach.title}</h2>
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-ink/58 dark:text-white/50">{coach.message}</p>
+              </div>
+            </div>
+            <button onClick={() => setPage(coach.page as Page)} className="btn-primary shrink-0">{coach.action} <ArrowRight size={17} /></button>
+          </div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-5">
+            {errorDiary.map((item) => <button key={item.key} onClick={() => setPage(item.page as Page)} className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${item.count ? "border-coral/20 bg-coral/[.055]" : "border-sage/15 bg-sage/[.055]"}`}>
+              <div className="text-2xl font-bold">{item.count}</div>
+              <p className="mt-1 text-xs font-bold leading-4">{item.title}</p>
+              <p className="mt-2 text-[11px] leading-4 text-ink/42 dark:text-white/38">{item.count ? "Fehler in letzten Versuchen" : "aktuell stabil"}</p>
+            </button>)}
+          </div>
+        </section>
+
+        <section className="card-premium p-5 sm:p-7">
+          <div className="flex items-start gap-3">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber/[.14] text-amber"><Smartphone size={23} /></span>
+            <div>
+              <p className="eyebrow">Handy-App</p>
+              <h2 className="font-display text-3xl">Installierbar ohne App Store</h2>
+              <p className="mt-3 text-sm leading-6 text-ink/58 dark:text-white/50">Die App besitzt jetzt Manifest, Icon und Offline-Cache. Auf dem Handy können Sie sie über „Zum Home-Bildschirm“ installieren.</p>
+              <div className="mt-4 rounded-2xl bg-sand/50 p-4 text-xs leading-5 dark:bg-white/[.05]">
+                <strong>iPhone:</strong> Safari öffnen → Teilen → Zum Home-Bildschirm.<br />
+                <strong>Android:</strong> Chrome öffnen → Menü → App installieren.
+              </div>
+            </div>
+          </div>
+          <div className="mt-5 flex items-center gap-2 text-xs font-bold text-sage"><Download size={15} /> PWA vorbereitet · lokale Speicherung bleibt aktiv</div>
+        </section>
       </div>
 
       <section className="-mx-4 overflow-x-auto px-4 pb-1 sm:hidden">

@@ -83,6 +83,8 @@ Darstellungen werden deshalb nicht ungeprüft übernommen.
 
 - gewichteter Gesamtfortschritt
 - Akademie-Fortschritt mit vertieften Modulen
+- persönlicher Lerncoach aus den letzten Fallversuchen
+- Fehler-Tagebuch mit wiederkehrenden Schwächen
 - mobile Fortschrittsringe für alle Kompetenzbereiche
 - Fortschritt aller sechs Lernwochen
 - Kompetenzprofil für fünf Fachbereiche
@@ -103,8 +105,13 @@ Darstellungen werden deshalb nicht ungeprüft übernommen.
 ### Professioneller Falltrainer
 
 - exakt 100 anonymisierte Übungsfälle
+- drei vollständige Musterbeispiele mit typischer Fehlentscheidung,
+  korrekter Entscheidung und Entscheidungsprotokoll
 - Aktenzeichen und verwaltungsähnlicher Aktenkopf
 - Personendaten, Sachverhalt und Aktenbestand
+- Risikoampel pro Fallakte
+- Entscheidungsprotokoll mit Status, Rechtsgrundlage, Zuständigkeit,
+  Priorität, Risiko, Endentscheidung und nächstem Schritt
 - einheitliches Prüfraster:
 
 ```text
@@ -137,6 +144,8 @@ Verteilung der Fallakten:
 
 ### Weitere Lernwerkzeuge
 
+- PWA-Vorbereitung: installierbar auf Handy ohne App Store
+- App-Manifest, Icon, Service Worker und Offline-Grundcache
 - vollständige Akademie mit 18 vertieften Modulen
 - fünf Lernpfade für verschiedene Rollen und Lernziele
 - vier Expertenschemata mit Nachweisen, Warnhinweisen und Entscheidungsnotiz
@@ -169,6 +178,7 @@ Verteilung der Fallakten:
 - Vite
 - Tailwind CSS
 - Lucide Icons
+- Progressive Web App (PWA) mit Manifest und Service Worker
 - keine Datenbank
 - kein Backend
 - keine Anmeldung
@@ -225,6 +235,8 @@ npm run dev
 ### 2. Welche Funktionen gibt es?
 
 - Dashboard mit Gesamtfortschritt, Kompetenzprofil, Lernserie und Badges
+- persönlicher Lerncoach mit Fehler-Tagebuch
+- installierbare Handy-App/PWA ohne App Store
 - Akademie mit Lernpfaden, Vertiefungsmodulen und Premium-Fallakten
 - strukturierter Sechs-Wochen-Lernplan
 - Prüfschemata und Entscheidungsbäume für typische Verwaltungsfragen
@@ -262,6 +274,39 @@ Browser kann deshalb zu einem leeren Lernstand führen.
 Der persönliche Bestwert und alle Versuche werden automatisch gespeichert.
 Die Fälle enthalten ausschließlich fiktive Übungsdaten; auch in Freitextfeldern
 sollten keine echten personenbezogenen Daten verwendet werden.
+
+### 4a. Wie funktioniert der Lerncoach?
+
+Der Lerncoach wertet die letzten Fallversuche lokal im Browser aus. Er erkennt,
+ob Fehler häufiger in diesen Bereichen entstehen:
+
+- Status und Rechtsgrundlage
+- Zuständigkeit, Leistung und Priorität
+- Unterlagen und Sachverhalt
+- Endentscheidung und nächster Schritt
+- Risiko und Behördenkommunikation
+
+Danach empfiehlt die App automatisch den passenden Lernbereich. Die Auswertung
+passiert lokal aus Ihrem Lernstand und sendet keine Daten an einen Server.
+
+### 4b. Wie installiere ich die App auf dem Handy?
+
+Die App ist als PWA vorbereitet.
+
+Auf dem iPhone:
+
+1. Webseite in Safari öffnen.
+2. Teilen-Symbol antippen.
+3. **Zum Home-Bildschirm** wählen.
+4. App-Namen bestätigen.
+
+Auf Android:
+
+1. Webseite in Chrome öffnen.
+2. Drei-Punkte-Menü öffnen.
+3. **App installieren** oder **Zum Startbildschirm hinzufügen** wählen.
+
+Der Lernstand bleibt im Browser-/App-Speicher des jeweiligen Geräts.
 
 ### 5. Wie kann ich später neue Fälle hinzufügen?
 

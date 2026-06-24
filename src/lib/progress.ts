@@ -69,3 +69,88 @@ export function earnedBadges(state: ProgressState, streak: number) {
     { id: "exam", name: "Praxisbereit", description: "Abschlussprüfung mit mindestens 80 %", earned: (state.examScore ?? 0) >= 80, target: 80, current: state.examScore ?? 0 },
   ];
 }
+
+const errorLabels: Record<keyof ProgressState["caseAttempts"][number]["breakdown"], { title: string; topic: string; advice: string; page: string }> = {
+  status: {
+    title: "Status & Rechtsgrundlage",
+    topic: "Aufenthaltstitel, Duldung, Gestattung, Fiktionswirkung",
+    advice: "Vor jeder Entscheidung zuerst Dokument, Rechtsgrundlage, Gültigkeit und Nebenbestimmung lesen.",
+    page: "learn",
+  },
+  authority: {
+    title: "Zuständigkeit & Priorität",
+    topic: "Ausländerbehörde, Jobcenter, BAMF, Sozialamt, Anerkennungsstelle",
+    advice: "Trenne Aufenthaltsrecht, Leistungsrecht, Schutzverfahren und Beratung. Eine Stelle entscheidet selten alles.",
+    page: "decisions",
+  },
+  documents: {
+    title: "Unterlagen & Sachverhalt",
+    topic: "Nachforderung, Aktenbestand, Nachweise, Fristen",
+    advice: "Benennen Sie konkret, welcher Nachweis fehlt. Allgemeine Formulierungen wie „weitere Dokumente“ reichen nicht.",
+    page: "documents",
+  },
+  nextStep: {
+    title: "Endentscheidung & nächster Schritt",
+    topic: "Bewilligen, ablehnen, nachfordern, weiterleiten, Frist sichern",
+    advice: "Die Handlung muss zuständig, zeitlich logisch und zur Aktenlage passend sein.",
+    page: "schemas",
+  },
+  communication: {
+    title: "Risiko & Behördenkommunikation",
+    topic: "Aktennotiz, E-Mail, Risikoampel, Beratungsgrenzen",
+    advice: "Kommunikation muss sachlich sein und darf keine Zusage machen, bevor die Prüfung abgeschlossen ist.",
+    page: "templates",
+  },
+};
+
+export function caseErrorDiary(state: ProgressState) {
+  const counts = Object.fromEntries(Object.keys(errorLabels).map((key) => [key, 0])) as Record<keyof ProgressState["caseAttempts"][number]["breakdown"], number>;
+  const recent = state.caseAttempts.slice(-20);
+  recent.forEach((attempt) => {
+    Object.entries(attempt.breakdown).forEach(([key, value]) => {
+      if (value < 15) counts[key as keyof typeof counts] += 1;
+    });
+  });
+  return Object.entries(counts)
+    .map(([key, count]) => ({ key, count, ...errorLabels[key as keyof typeof errorLabels] }))
+    .sort((a, b) => b.count - a.count);
+}
+
+export function learningCoach(state: ProgressState) {
+  const attempts = state.caseAttempts;
+  const solved = Object.keys(state.caseScores).length;
+  const average = solved ? Math.round(Object.values(state.caseScores).reduce((a, b) => a + b, 0) / solved) : 0;
+  const diary = caseErrorDiary(state);
+  const mainError = diary[0];
+
+  if (!attempts.length) {
+    return {
+      title: "Starten Sie mit einer Fallakte",
+      message: "Lösen Sie zuerst einen leichten Fall. Danach erkennt der Lerncoach Ihre typischen Fehler und empfiehlt gezielt die nächste Übung.",
+      action: "Erste Fallakte bearbeiten",
+      page: "cases",
+    };
+  }
+  if (mainError?.count > 0) {
+    return {
+      title: `Hauptfehler: ${mainError.title}`,
+      message: `${mainError.advice} Das kam in den letzten Versuchen ${mainError.count}-mal vor. Wiederholen Sie: ${mainError.topic}.`,
+      action: "Passenden Lernbereich öffnen",
+      page: mainError.page,
+    };
+  }
+  if (average >= 85) {
+    return {
+      title: "Sehr stabiler Lernstand",
+      message: "Ihre Fallentscheidungen sind aktuell stark. Wechseln Sie in schwerere Akten oder in die Abschlussprüfung.",
+      action: "Abschlussprüfung öffnen",
+      page: "exam",
+    };
+  }
+  return {
+    title: "Guter Fortschritt",
+    message: "Die Fehler sind nicht mehr eindeutig konzentriert. Lösen Sie jetzt einen Fall aus einem anderen Rechtsgebiet, um Transferfähigkeit aufzubauen.",
+    action: "Nächsten Fall wählen",
+    page: "cases",
+  };
+}
