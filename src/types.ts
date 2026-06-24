@@ -51,6 +51,64 @@ export interface LegalTopic {
   warning?: string;
 }
 
+export interface LegalParagraph {
+  id: string;
+  law: string;
+  paragraph: string;
+  title: string;
+  area: string;
+  sourceId: string;
+  legalStatus: string;
+  originalNotice: string;
+  structure: {
+    level: "Absatz" | "Satz" | "Nummer" | "Buchstabe" | "Normkern";
+    reference: string;
+    text: string;
+    emphasis: string[];
+  }[];
+  shortSummary: string;
+  simpleExplanation: string;
+  everydayMeaning: string;
+  difficultTerms: { term: string; explanation: string; example: string }[];
+  purpose: string;
+  systemPosition: string;
+  requirements: string[];
+  legalConsequence: string[];
+  discretion: string;
+  interpretation: string[];
+  relationToOtherNorms: string[];
+  commentary: {
+    shortCommentary: string;
+    disputes: string[];
+    authorityPractice: string[];
+    counselorPerspective: string[];
+    humanMeaning: string;
+    hardshipCases: string[];
+  };
+  examination: {
+    steps: string[];
+    checklist: string[];
+    documents: string[];
+    refusalReasons: string[];
+    remedies: string[];
+  };
+  practiceCases: {
+    simple: string;
+    complex: string;
+    authority: string;
+    jobcenter: string;
+    counseling: string;
+  };
+  learning: {
+    flashcards: { front: string; back: string }[];
+    quiz: { question: string; options: string[]; correct: number; explanation: string }[];
+    openQuestions: string[];
+    cloze: string;
+    casePrompt: string;
+  };
+  linkedParagraphs: string[];
+}
+
 export interface DayTask {
   id: string;
   day: number;

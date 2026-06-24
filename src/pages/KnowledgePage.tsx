@@ -5,8 +5,9 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { decisionTrees, expertSchemes, extendedAcademyModules, learningPaths, premiumDossiers } from "../data/academyContent";
+import { legalParagraphs } from "../data/legalParagraphs";
 import { documentChecklists, legalSources, legalTopics } from "../data/legalKnowledge";
-import type { LegalArea, LegalTopic, ProgressState } from "../types";
+import type { LegalArea, LegalParagraph, LegalTopic, ProgressState } from "../types";
 
 const areas: ("Alle" | LegalArea)[] = ["Alle", "Grundlagen", "Visum", "Erwerbsmigration", "Familie", "Schutz", "Duldung & Bleiberecht"];
 
@@ -32,6 +33,7 @@ function TopicMeta({ topic }: { topic: LegalTopic }) {
 
 const modes = [
   ["einfach", "Einfach erklärt"],
+  ["paragraphen", "Paragraphen-Kommentar"],
   ["kommentar", "Kommentar & System"],
   ["pruefung", "Voraussetzungen"],
   ["praxis", "Behördenpraxis"],
@@ -201,13 +203,20 @@ export function LearnPage({
   const [query, setQuery] = useState("");
   const [area, setArea] = useState<(typeof areas)[number]>("Alle");
   const [activeId, setActiveId] = useState(legalTopics[0].id);
+  const [activeParagraphId, setActiveParagraphId] = useState(legalParagraphs[0].id);
   const [mode, setMode] = useState<(typeof modes)[number][0]>("einfach");
   const filtered = useMemo(() => legalTopics.filter((topic) =>
     (area === "Alle" || topic.area === area) &&
     `${topic.title} ${topic.subtitle} ${topic.legalBasis.join(" ")} ${topic.keyTerms.map((item) => item.term).join(" ")}`
       .toLowerCase().includes(query.toLowerCase()),
   ), [area, query]);
+  const filteredParagraphs = useMemo(() => legalParagraphs.filter((paragraph) =>
+    (area === "Alle" || paragraph.area.toLowerCase().includes(area.toLowerCase()) || paragraph.linkedParagraphs.some((item) => item.toLowerCase().includes(area.toLowerCase()))) &&
+    `${paragraph.law} ${paragraph.paragraph} ${paragraph.title} ${paragraph.area} ${paragraph.shortSummary} ${paragraph.linkedParagraphs.join(" ")}`
+      .toLowerCase().includes(query.toLowerCase()),
+  ), [area, query]);
   const topic = legalTopics.find((item) => item.id === activeId) ?? filtered[0] ?? legalTopics[0];
+  const paragraph = legalParagraphs.find((item) => item.id === activeParagraphId) ?? filteredParagraphs[0] ?? legalParagraphs[0];
   const complete = state.completedTopics.includes(topic.id);
   const progress = Math.round(state.completedTopics.length / legalTopics.length * 100);
 
@@ -252,6 +261,18 @@ export function LearnPage({
             </button>;
           })}
         </div>
+        <div className="card-premium p-4">
+          <p className="eyebrow">Digitale Kommentar-Ebene</p>
+          <h2 className="mt-2 font-display text-2xl">{filteredParagraphs.length} Paragraphen</h2>
+          <p className="mt-2 text-xs leading-5 text-ink/45 dark:text-white/40">Jede Norm ist mit Normkern, Zweck, Auslegung, Praxis, Checkliste, Fällen, Quiz und Verknüpfungen aufgebaut.</p>
+          <div className="mt-4 max-h-[420px] space-y-2 overflow-y-auto pr-1">
+            {filteredParagraphs.map((item) => <button key={item.id} onClick={() => { setActiveParagraphId(item.id); setMode("paragraphen"); }} className={`w-full rounded-2xl border p-3 text-left transition ${paragraph.id === item.id && mode === "paragraphen" ? "border-coral/35 bg-coral/[.06]" : "border-black/[.05] hover:border-coral/25 dark:border-white/[.07]"}`}>
+              <p className="text-xs font-bold uppercase tracking-wider text-coral">{item.law} · {item.paragraph}</p>
+              <p className="mt-1 font-semibold">{item.title}</p>
+              <p className="mt-1 text-[11px] leading-4 text-ink/42 dark:text-white/36">{item.area}</p>
+            </button>)}
+          </div>
+        </div>
       </aside>
 
       <article className="min-w-0 space-y-5">
@@ -275,6 +296,7 @@ export function LearnPage({
               <div className="rounded-3xl bg-forest p-6 text-white"><p className="text-xs font-bold uppercase tracking-[.16em] text-amber">Merksätze</p><ul className="mt-4 space-y-3">{topic.memoryAids.map((item) => <li className="flex gap-3 text-sm leading-6" key={item}><CheckCircle2 className="mt-0.5 shrink-0 text-amber" size={18} />{item}</li>)}</ul></div>
               <div className="lg:col-span-2"><h3 className="font-display text-3xl">Wichtige Begriffe</h3><div className="mt-4 grid gap-3 sm:grid-cols-2">{topic.keyTerms.map((item) => <div key={item.term} className="rounded-2xl border border-black/[.06] p-4 dark:border-white/[.08]"><p className="font-bold text-sage">{item.term}</p><p className="mt-2 text-sm leading-6 text-ink/55 dark:text-white/48">{item.explanation}</p></div>)}</div></div>
             </div>}
+            {mode === "paragraphen" && <ParagraphCommentary paragraph={paragraph} />}
             {mode === "kommentar" && <div className="space-y-5">
               <InfoCard icon={Scale} title="Systematische Einordnung" text={topic.systematics} accent />
               <div className="grid gap-5 lg:grid-cols-2"><ListCard title="Rechtsfolge" items={[topic.legalConsequence]} /><ListCard title="Anspruch, Bindung oder Ermessen?" items={[topic.decisionType]} /></div>
@@ -325,6 +347,126 @@ function ExampleCard({ tone, label, text }: { tone: "green" | "red" | "blue"; la
 function SourceStrip({ topic }: { topic: LegalTopic }) {
   const sources = legalSources.filter((source) => topic.sourceIds.includes(source.id));
   return <section className="card-premium p-6"><div className="flex items-center gap-3"><Landmark className="text-sage" /><div><p className="eyebrow">Quellenkontrolle</p><h3 className="font-display text-2xl">{sources.length} zugeordnete Quellen</h3></div></div><div className="mt-5 grid gap-3 md:grid-cols-2">{sources.map((source) => <div className="rounded-2xl border border-black/[.05] p-4 dark:border-white/[.07]" key={source.id}><div className="flex items-start justify-between gap-3"><p className="font-semibold">{source.title}</p><StatusBadge tone={source.trust === "A" ? "green" : source.outdated ? "red" : "blue"}>Stufe {source.trust}</StatusBadge></div><p className="mt-2 text-xs leading-5 text-ink/45 dark:text-white/40">{source.publisher} · geprüft {source.checkedAt}</p></div>)}</div></section>;
+}
+
+function ParagraphCommentary({ paragraph }: { paragraph: LegalParagraph }) {
+  const source = legalSources.find((item) => item.id === paragraph.sourceId);
+  return <div className="space-y-6">
+    <section className="rounded-[1.7rem] border border-coral/20 bg-gradient-to-br from-coral/[.10] to-amber/[.08] p-5 sm:p-6">
+      <div className="flex flex-wrap gap-2">
+        <StatusBadge tone="red"><Gavel size={13} />{paragraph.law} · {paragraph.paragraph}</StatusBadge>
+        <StatusBadge tone="blue">{paragraph.area}</StatusBadge>
+        <StatusBadge tone="yellow">{paragraph.legalStatus}</StatusBadge>
+      </div>
+      <h3 className="mt-4 font-display text-4xl">{paragraph.title}</h3>
+      <p className="mt-3 max-w-4xl leading-7 text-ink/62 dark:text-white/54">{paragraph.shortSummary}</p>
+      <div className="mt-5 rounded-2xl border border-black/[.06] bg-white/70 p-4 text-sm leading-6 dark:border-white/[.08] dark:bg-white/[.05]">
+        <strong>Originaltext-Hinweis:</strong> {paragraph.originalNotice}
+        {source?.url && <a href={source.url} target="_blank" rel="noreferrer" className="ml-2 inline-flex items-center gap-1 font-bold text-coral">amtliche Quelle öffnen <ExternalLink size={14} /></a>}
+      </div>
+    </section>
+
+    <section className="grid gap-4">
+      <h3 className="font-display text-3xl">1. Normstruktur mit hervorgehobenen Begriffen</h3>
+      {paragraph.structure.map((part) => <div key={part.reference} className="rounded-3xl border border-black/[.06] bg-white p-5 dark:border-white/[.08] dark:bg-white/[.035]">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge tone="blue">{part.level}</StatusBadge>
+          <p className="font-mono text-xs font-bold uppercase tracking-widest text-sage">{part.reference}</p>
+        </div>
+        <p className="mt-4 leading-7">{part.text}</p>
+        <div className="mt-4 flex flex-wrap gap-2">{part.emphasis.map((word) => <span key={word} className="rounded-full bg-amber/[.16] px-3 py-1.5 text-xs font-bold text-amber-800 dark:text-amber">{word}</span>)}</div>
+      </div>)}
+    </section>
+
+    <section className="grid gap-5 lg:grid-cols-2">
+      <InfoCard icon={GraduationCap} title="Einfache Erklärung" text={paragraph.simpleExplanation} accent />
+      <InfoCard icon={Info} title="Bedeutung im Alltag" text={paragraph.everydayMeaning} />
+      <InfoCard icon={ShieldCheck} title="Zweck der Norm" text={paragraph.purpose} />
+      <InfoCard icon={Scale} title="Systematische Stellung" text={paragraph.systemPosition} />
+    </section>
+
+    <section>
+      <h3 className="font-display text-3xl">2. Schwierige juristische Begriffe</h3>
+      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+        {paragraph.difficultTerms.map((item) => <div key={item.term} className="rounded-3xl border border-black/[.06] p-5 dark:border-white/[.08]">
+          <p className="font-bold text-sage">{item.term}</p>
+          <p className="mt-2 text-sm leading-6">{item.explanation}</p>
+          <p className="mt-3 rounded-2xl bg-sand p-3 text-xs leading-5 text-forest dark:bg-white/[.06] dark:text-white/55"><strong>Beispiel:</strong> {item.example}</p>
+        </div>)}
+      </div>
+    </section>
+
+    <section className="grid gap-5 lg:grid-cols-2">
+      <ListCard title="Tatbestandsvoraussetzungen" items={paragraph.requirements} good />
+      <ListCard title="Rechtsfolgen" items={paragraph.legalConsequence} />
+      <InfoCard icon={CircleHelp} title="Ermessen oder gebundene Entscheidung?" text={paragraph.discretion} accent />
+      <ListCard title="Typische Auslegungsprobleme" items={paragraph.interpretation} />
+      <ListCard title="Verhältnis zu anderen Paragraphen" items={paragraph.relationToOtherNorms} />
+      <ListCard title="Wichtige Streitfragen" items={paragraph.commentary.disputes} />
+    </section>
+
+    <section className="rounded-[1.7rem] border border-black/[.06] bg-white p-5 dark:border-white/[.08] dark:bg-white/[.035] sm:p-6">
+      <p className="eyebrow">Kurzkommentar</p>
+      <h3 className="mt-2 font-display text-3xl">Wie in einem juristischen Lehrbuch — aber verständlich</h3>
+      <p className="mt-4 leading-7 text-ink/65 dark:text-white/55">{paragraph.commentary.shortCommentary}</p>
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <ListCard title="Hinweise für Sachbearbeiter" items={paragraph.commentary.authorityPractice} good />
+        <ListCard title="Hinweise für Berater" items={paragraph.commentary.counselorPerspective} />
+      </div>
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <InfoCard icon={ShieldAlert} title="Menschliche und soziale Bedeutung" text={paragraph.commentary.humanMeaning} />
+        <ListCard title="Mögliche Härtefälle" items={paragraph.commentary.hardshipCases} danger />
+      </div>
+    </section>
+
+    <section className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
+      <div className="rounded-[1.7rem] border border-sage/20 bg-sage/[.06] p-5 sm:p-6">
+        <p className="eyebrow">Prüfungsschema</p>
+        <h3 className="mt-2 font-display text-3xl">Schritt für Schritt prüfen</h3>
+        <div className="mt-5 space-y-3">{paragraph.examination.steps.map((step, index) => <div key={step} className="flex gap-3 rounded-2xl bg-white/70 p-4 dark:bg-white/[.055]"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-sage text-sm font-bold text-white">{index + 1}</span><p className="text-sm leading-6">{step}</p></div>)}</div>
+      </div>
+      <div className="space-y-5">
+        <ListCard title="Voraussetzungen als Checkliste" items={paragraph.examination.checklist} good />
+        <ListCard title="Erforderliche Dokumente" items={paragraph.examination.documents} />
+      </div>
+    </section>
+
+    <section className="grid gap-5 lg:grid-cols-2">
+      <ListCard title="Typische Ablehnungsgründe" items={paragraph.examination.refusalReasons} danger />
+      <ListCard title="Mögliche Rechtsmittel / nächste Schritte" items={paragraph.examination.remedies} />
+    </section>
+
+    <section>
+      <h3 className="font-display text-3xl">3. Praxisfälle nach Rollen</h3>
+      <div className="mt-4 grid gap-4 lg:grid-cols-5">
+        {Object.entries(paragraph.practiceCases).map(([label, text]) => <div key={label} className="rounded-3xl border border-black/[.06] p-4 dark:border-white/[.08]">
+          <p className="text-xs font-bold uppercase tracking-wider text-coral">{label}</p>
+          <p className="mt-2 text-sm leading-6">{text}</p>
+        </div>)}
+      </div>
+    </section>
+
+    <section className="rounded-[1.7rem] border border-amber/20 bg-amber/[.07] p-5 sm:p-6">
+      <p className="eyebrow">Lernmodus</p>
+      <h3 className="mt-2 font-display text-3xl">Karteikarten, Quiz, offene Fragen, Lückentext und Fallprüfung</h3>
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <ListCard title="Karteikarten" items={paragraph.learning.flashcards.map((card) => `${card.front}: ${card.back}`)} />
+        <div className="rounded-3xl border border-black/[.06] bg-white/70 p-5 dark:border-white/[.08] dark:bg-white/[.04]">
+          <h4 className="font-display text-2xl">Quizfragen</h4>
+          <div className="mt-4 space-y-4">{paragraph.learning.quiz.map((quiz) => <div key={quiz.question} className="rounded-2xl bg-sand/70 p-4 text-sm dark:bg-white/[.05]">
+            <p className="font-bold">{quiz.question}</p>
+            <p className="mt-2 text-xs leading-5 text-ink/55 dark:text-white/45">Antwort: {quiz.options[quiz.correct]} · {quiz.explanation}</p>
+          </div>)}</div>
+        </div>
+        <ListCard title="Offene Fragen" items={paragraph.learning.openQuestions} />
+        <div className="rounded-3xl border border-black/[.06] bg-white/70 p-5 dark:border-white/[.08] dark:bg-white/[.04]">
+          <h4 className="font-display text-2xl">Lückentext und Fallprüfung</h4>
+          <p className="mt-3 rounded-2xl bg-sand p-4 text-sm leading-6 dark:bg-white/[.05]">{paragraph.learning.cloze}</p>
+          <p className="mt-3 text-sm leading-6"><strong>Fallprüfung:</strong> {paragraph.learning.casePrompt}</p>
+        </div>
+      </div>
+    </section>
+  </div>;
 }
 
 export function SchemaPage() {

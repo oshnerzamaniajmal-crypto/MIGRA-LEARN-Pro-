@@ -55,6 +55,35 @@ Die ersten ausführlichen Lernmodule behandeln:
 - Duldung
 - Niederlassungserlaubnis
 
+Zusätzlich besitzt die App jetzt eine eigene digitale Paragraphen-Kommentar-
+Ebene. Sie ist im Bereich **Lernen → Paragraphen-Kommentar** erreichbar.
+Jeder Paragraph ist als eigenes Datenobjekt aufgebaut mit:
+
+- Normstruktur nach Absatz/Satz/Nummer beziehungsweise Normkern
+- hervorgehobenen Schlüsselbegriffen
+- einfacher Erklärung und Bedeutung im Alltag
+- schwierigen juristischen Begriffen mit Beispielen
+- Zweck, Systematik, Voraussetzungen und Rechtsfolgen
+- Ermessen beziehungsweise gebundener Entscheidung
+- Auslegungsproblemen und Verbindung zu anderen Normen
+- Kurzkommentar, Streitfragen, Behörden- und Beratungsperspektive
+- menschlicher Bedeutung und möglichen Härtefällen
+- Prüfungsschema, Dokumentencheckliste und Ablehnungsgründen
+- Praxisfällen aus Ausländerbehörde, Jobcenter und Beratung
+- Karteikarten, Quiz, offene Fragen, Lückentext und Fallprüfung
+
+Der Startbestand umfasst unter anderem:
+
+- § 4 AufenthG – Erfordernis eines Aufenthaltstitels
+- § 5 AufenthG – allgemeine Erteilungsvoraussetzungen
+- § 6 AufenthG – Visum
+- § 27 AufenthG – Familiennachzug
+- § 60a AufenthG – Duldung
+- § 3 AsylG / EU-Qualifikationsrecht – Flüchtlingsschutz
+- § 7 SGB II – Leistungsberechtigung
+- § 44 AufenthG – Integrationskurs
+- § 10 StAG – Anspruchseinbürgerung
+
 Jedes Thema trennt gesetzesnahe Zusammenfassung, didaktischen Kommentar,
 Behördenpraxis und Fallbeispiel. Dynamische Werte wie Gehaltsschwellen werden
 nicht als dauerhaft feste Zahl behandelt, sondern müssen in der jeweils
@@ -146,6 +175,8 @@ Verteilung der Fallakten:
 
 - PWA-Vorbereitung: installierbar auf Handy ohne App Store
 - App-Manifest, Icon, Service Worker und Offline-Grundcache
+- Paragraphen-Kommentar mit Normstruktur, Auslegung, Praxis, Checklisten,
+  Lernfragen und Fallbezug
 - vollständige Akademie mit 18 vertieften Modulen
 - fünf Lernpfade für verschiedene Rollen und Lernziele
 - vier Expertenschemata mit Nachweisen, Warnhinweisen und Entscheidungsnotiz
@@ -363,6 +394,33 @@ GEAS-Übergangsregeln sollten nie dauerhaft ungeprüft übernommen werden.
 
 Neue Fälle müssen realistisch, vollständig fiktiv und fachlich anhand aktueller
 offizieller Quellen geprüft sein.
+
+### 7. Wie kann ich später neue Paragraphen hinzufügen?
+
+Die Paragraphen-Kommentare liegen in:
+
+```text
+src/data/legalParagraphs.ts
+```
+
+Ein neuer Paragraph sollte als vollständiges Objekt ergänzt werden. Wichtig
+sind insbesondere:
+
+- `law`, `paragraph`, `title`, `area`
+- `structure` für Absatz, Satz, Nummer oder Normkern
+- `shortSummary`, `simpleExplanation`, `everydayMeaning`
+- `difficultTerms`
+- `purpose`, `systemPosition`, `requirements`, `legalConsequence`
+- `discretion`, `interpretation`, `relationToOtherNorms`
+- `commentary` mit Behördenperspektive, Beratungsperspektive und Härtefällen
+- `examination` mit Prüfschritten, Dokumenten, Ablehnungsgründen und nächsten
+  Schritten
+- `practiceCases` für einfache und schwierige Fälle
+- `learning` für Karteikarten, Quiz, offene Fragen, Lückentext und Fallprüfung
+
+Wichtig: Wenn echter Gesetzeswortlaut übernommen wird, muss er direkt mit der
+amtlichen Quelle geprüft werden. Die App enthält Lernfassungen und
+Strukturhilfen; sie ersetzt keine verbindliche Rechtsberatung.
 
 ## Lokale Speicherung
 
