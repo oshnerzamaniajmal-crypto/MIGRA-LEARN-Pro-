@@ -20,6 +20,11 @@ Die Bereiche **Akademie** und **Lernen** sind jetzt klar getrennt:
 - **Aktiv lernen** ist der persönliche Lernmodus. Dort sieht man die aktuelle
   Lektion, die nächste empfohlene Lektion, Quiz, Wiederholung, Glossar,
   Quellen und den eigenen Fortschritt.
+- **Paragraphenbibliothek** ist die professionelle Rechts- und Beratungsebene.
+  Dort sind die vorhandenen rund 99 Paragraphen/Rechtskarten wieder sichtbar:
+  mit Suche, Filter, Zielgruppen, Zweck, Voraussetzungen, Dokumenten,
+  Verfahren, Rechtsfolgen, Praxisbeispielen, häufigen Fehlern, Checkliste,
+  Quellenstand und Rechtsberatungshinweis.
 
 Der neue Lernpfad umfasst **12 Module mit insgesamt 120 fest sortierten
 Lektionen**. Die Sortierung erfolgt technisch über `moduleOrder`,
@@ -83,14 +88,16 @@ Die Hauptnavigation folgt einer fachlichen Reihenfolge:
    Kontrollfragen, Reflexion, Mini-Quiz und Karteikarten
 3. **Lernen** – Gesetzesgrundlage, einfache Erklärung, Zweck, Systematik,
    Begriffe, Voraussetzungen, Rechtsfolge, Praxis, Fehler und Beispiele
-4. **Prüfschemata** – zehn interaktive Prüfschritte vom Sachverhalt bis zum
+4. **Paragraphenbibliothek** – Rechtsnormen und rechtliche Themen als
+   strukturierte Beratungs- und Orientierungskarten
+5. **Prüfschemata** – zehn interaktive Prüfschritte vom Sachverhalt bis zum
    nächsten Verfahrensschritt
-5. **Entscheidungsboxen** – Entscheidungsbäume und Kriterienchecks für
+6. **Entscheidungsboxen** – Entscheidungsbäume und Kriterienchecks für
    nationales Visum, Schutzformen, Familiennachzug, Arbeitserlaubnis und
    Leistungszuständigkeit
-6. **Falltrainer** – Anwendung des zuvor gelernten Systems auf 100 Fälle
-7. **Quiz und Prüfung** – Wissenskontrolle und berufsnahe Transferaufgaben
-8. **Dokumente und Quellen** – Aktenchecklisten, Quellenstufen und sichtbarer
+7. **Falltrainer** – Anwendung des zuvor gelernten Systems auf 100 Fälle
+8. **Quiz und Prüfung** – Wissenskontrolle und berufsnahe Transferaufgaben
+9. **Dokumente und Quellen** – Aktenchecklisten, Quellenstufen und sichtbarer
    Rechtsstand
 
 ## Neues MVP-Modul: Termin-, E-Mail-, To-do- und Delivery-Assistant

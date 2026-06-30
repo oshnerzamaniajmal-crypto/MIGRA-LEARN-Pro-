@@ -13,13 +13,14 @@ const TemplatesPage = lazy(() => import("./pages/LibraryPage").then((module) => 
 const ExamPage = lazy(() => import("./pages/ExamPage").then((module) => ({ default: module.ExamPage })));
 const AcademyPage = lazy(() => import("./pages/LearningPathPages").then((module) => ({ default: module.AcademyPage })));
 const LearnPage = lazy(() => import("./pages/LearningPathPages").then((module) => ({ default: module.LearnPage })));
+const ParagraphLibraryPage = lazy(() => import("./pages/ParagraphLibraryPage").then((module) => ({ default: module.ParagraphLibraryPage })));
 const SchemaPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.SchemaPage })));
 const DecisionPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.DecisionPage })));
 const SourcesPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.SourcesPage })));
 const DocumentsPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.DocumentsPage })));
 const AssistantPage = lazy(() => import("./pages/AssistantPage").then((module) => ({ default: module.AssistantPage })));
 
-const pages: Page[] = ["dashboard", "assistant", "academy", "learn", "schemas", "decisions", "cases", "quiz", "documents", "sources", "plan", "cards", "templates", "notes", "exam"];
+const pages: Page[] = ["dashboard", "assistant", "academy", "learn", "paragraphs", "schemas", "decisions", "cases", "quiz", "documents", "sources", "plan", "cards", "templates", "notes", "exam"];
 const pageFromHash = (): Page => {
   const value = window.location.hash.replace("#/", "") as Page;
   return pages.includes(value) ? value : "dashboard";
@@ -47,6 +48,7 @@ export default function App() {
     assistant: <AssistantPage />,
     academy: <AcademyPage state={progress.state} setPage={setPage} openLesson={progress.openLesson} />,
     learn: <LearnPage state={progress.state} setPage={setPage} openLesson={progress.openLesson} updateLessonReading={progress.updateLessonReading} completeLesson={progress.completeLesson} saveLessonQuiz={progress.saveLessonQuiz} />,
+    paragraphs: <ParagraphLibraryPage />,
     schemas: <SchemaPage />,
     decisions: <DecisionPage />,
     plan: <PlanPage state={progress.state} toggleTask={progress.toggleTask} />,
