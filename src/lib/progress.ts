@@ -1,7 +1,7 @@
 import { cases } from "../data/cases";
 import { flashcards } from "../data/flashcards";
 import { weeks } from "../data/weeks";
-import { legalTopics } from "../data/legalKnowledge";
+import { learningLessons } from "../data/learningPath";
 import type { Category, ProgressState } from "../types";
 
 export const competencyCategories: Category[] = [
@@ -26,7 +26,7 @@ export function totalProgress(state: ProgressState) {
   const cards = state.learnedCards.length / flashcards.length;
   const quizRounds = Math.min(state.quizHistory.length / 10, 1);
   const exam = state.examScore ? state.examScore / 100 : 0;
-  const topics = state.completedTopics.length / legalTopics.length;
+  const topics = learningLessons.filter((lesson) => state.completedTopics.includes(lesson.id)).length / learningLessons.length;
   return Math.round((topics * .28 + tasks * .24 + solvedCases * .22 + cards * .11 + quizRounds * .09 + exam * .06) * 100);
 }
 

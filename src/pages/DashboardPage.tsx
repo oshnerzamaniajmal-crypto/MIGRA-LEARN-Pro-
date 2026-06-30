@@ -10,8 +10,7 @@ import type { ProgressState } from "../types";
 import type { Page } from "../components/Layout";
 import { ProgressRing } from "../components/ProgressRing";
 import { LegalNotice } from "../components/LegalNotice";
-import { legalTopics } from "../data/legalKnowledge";
-import { extendedAcademyModules } from "../data/academyContent";
+import { getFirstOpenLesson, getModuleLessons, learningLessons, learningModules } from "../data/learningPath";
 
 const palette = ["bg-[#c77752]", "bg-[#d7a84d]", "bg-[#6f9b88]", "bg-[#748fa5]", "bg-[#987da5]"];
 
@@ -31,8 +30,11 @@ export function DashboardPage({ state, streak, setPage }: { state: ProgressState
   const badges = earnedBadges(state, streak);
   const earned = badges.filter((badge) => badge.earned);
   const recent = state.activities.slice(0, 4);
-  const completedAcademy = extendedAcademyModules.filter((module) => state.completedTopics.includes(`academy-${module.id}`)).length;
-  const academyProgress = Math.round((completedAcademy / extendedAcademyModules.length) * 100);
+  const completedLessons = learningLessons.filter((lesson) => state.completedTopics.includes(lesson.id)).length;
+  const academyProgress = Math.round((completedLessons / learningLessons.length) * 100);
+  const nextLesson = getFirstOpenLesson(state.completedTopics, state.currentLessonId);
+  const nextModule = learningModules.find((module) => module.id === nextLesson.moduleId) ?? learningModules[0];
+  const completedModules = learningModules.filter((module) => getModuleLessons(module.id).every((lesson) => state.completedTopics.includes(lesson.id))).length;
   const coach = learningCoach(state);
   const errorDiary = caseErrorDiary(state).slice(0, 5);
   const recommendation = weakest.value < 35
@@ -55,8 +57,8 @@ export function DashboardPage({ state, streak, setPage }: { state: ProgressState
             <h1 className="max-w-4xl font-display text-[2.15rem] leading-[1.04] min-[370px]:text-[2.55rem] sm:text-6xl">Vom Wissen zur sicheren Fallentscheidung.</h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/68">Lernen Sie zuerst Gesetz, Zweck und Prüfschema. Danach folgen Entscheidungsboxen, Fälle, Quiz und Prüfung.</p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <button onClick={() => setPage("academy")} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber px-5 py-3.5 font-bold text-forest shadow-lg shadow-black/10 transition hover:-translate-y-0.5">
-                Akademie starten <ArrowRight size={18} />
+              <button onClick={() => setPage("learn")} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber px-5 py-3.5 font-bold text-forest shadow-lg shadow-black/10 transition hover:-translate-y-0.5">
+                Weiterlernen: Lektion {nextLesson.globalLessonNumber} <ArrowRight size={18} />
               </button>
               <button onClick={() => setPage("decisions")} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-5 py-3.5 font-bold text-white transition hover:bg-white/15">
                 <BriefcaseBusiness size={18} /> Entscheidung üben
@@ -72,8 +74,8 @@ export function DashboardPage({ state, streak, setPage }: { state: ProgressState
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {[
-          { icon: GraduationCap, value: `${completedAcademy}/${extendedAcademyModules.length}`, label: "Akademie-Module", detail: `${academyProgress}% vertieft`, tone: "text-[#245f58] bg-[#6f9b88]/12" },
-          { icon: BookOpenCheck, value: `${state.completedTopics.filter((id) => legalTopics.some((topic) => topic.id === id)).length}/${legalTopics.length}`, label: "Rechtsthemen", detail: "Gesetz vor Fall", tone: "text-[#245f58] bg-[#6f9b88]/12" },
+          { icon: GraduationCap, value: `${completedModules}/${learningModules.length}`, label: "Module abgeschlossen", detail: `${academyProgress}% Kursfortschritt`, tone: "text-[#245f58] bg-[#6f9b88]/12" },
+          { icon: BookOpenCheck, value: `${completedLessons}/${learningLessons.length}`, label: "Lektionen gelernt", detail: `Nächste: Modul ${nextModule.moduleOrder}`, tone: "text-[#245f58] bg-[#6f9b88]/12" },
           { icon: BriefcaseBusiness, value: `${solved}/${cases.length}`, label: "Fälle gelöst", detail: `Ø ${avgCase} Punkte`, tone: "text-[#c77752] bg-[#c77752]/10" },
           { icon: Target, value: `${avgQuiz}%`, label: "Quiz-Sicherheit", detail: `${state.quizHistory.length} Runden`, tone: "text-[#6f9b88] bg-[#6f9b88]/12" },
         ].map(({ icon: Icon, value, label, detail, tone }) => (

@@ -4,9 +4,12 @@ import type { Note, ProgressState } from "../types";
 const STORAGE_KEY = "migration-verwaltung-progress-v1";
 
 const initialState: ProgressState = {
-  version: 3,
+  version: 4,
   completedTasks: [],
   completedTopics: [],
+  currentLessonId: undefined,
+  lessonProgress: {},
+  difficultLessonIds: [],
   caseScores: {},
   caseAttempts: [],
   quizHistory: [],
@@ -28,9 +31,12 @@ const today = () => localDate();
 const migrate = (saved: Partial<ProgressState>): ProgressState => ({
   ...initialState,
   ...saved,
-  version: 3,
+  version: 4,
   completedTasks: Array.isArray(saved.completedTasks) ? saved.completedTasks : [],
   completedTopics: Array.isArray(saved.completedTopics) ? saved.completedTopics : [],
+  currentLessonId: typeof saved.currentLessonId === "string" ? saved.currentLessonId : undefined,
+  lessonProgress: saved.lessonProgress && typeof saved.lessonProgress === "object" ? saved.lessonProgress : {},
+  difficultLessonIds: Array.isArray(saved.difficultLessonIds) ? saved.difficultLessonIds : [],
   caseScores: saved.caseScores && typeof saved.caseScores === "object" ? saved.caseScores : {},
   caseAttempts: Array.isArray(saved.caseAttempts) ? saved.caseAttempts : [],
   quizHistory: Array.isArray(saved.quizHistory) ? saved.quizHistory : [],
@@ -85,6 +91,111 @@ export function useProgress() {
         : [...current.completedTopics, id],
     }));
     if (!completed) log(`Lerneinheit abgeschlossen: ${title}`, "Lernen");
+  };
+
+  const openLesson = (lessonId: string, title: string) => {
+    setState((current) => {
+      const existing = current.lessonProgress[lessonId];
+      return {
+        ...current,
+        currentLessonId: lessonId,
+        lessonProgress: {
+          ...current.lessonProgress,
+          [lessonId]: {
+            status: existing?.status === "completed" || existing?.status === "quiz-passed" ? existing.status : "started",
+            openedAt: existing?.openedAt ?? new Date().toISOString(),
+            completedAt: existing?.completedAt,
+            readPercent: Math.max(existing?.readPercent ?? 0, 12),
+            quizScore: existing?.quizScore,
+            quizTotal: existing?.quizTotal,
+            lastActivityAt: new Date().toISOString(),
+            difficultTopics: existing?.difficultTopics ?? [],
+            reviewRecommended: existing?.reviewRecommended ?? false,
+          },
+        },
+      };
+    });
+    log(`Lektion geöffnet: ${title}`, "Lernpfad");
+  };
+
+  const updateLessonReading = (lessonId: string, percent: number) => {
+    setState((current) => {
+      const existing = current.lessonProgress[lessonId];
+      return {
+        ...current,
+        lessonProgress: {
+          ...current.lessonProgress,
+          [lessonId]: {
+            status: existing?.status === "completed" || existing?.status === "quiz-passed" ? existing.status : "reading",
+            openedAt: existing?.openedAt ?? new Date().toISOString(),
+            completedAt: existing?.completedAt,
+            readPercent: Math.max(existing?.readPercent ?? 0, Math.min(100, Math.round(percent))),
+            quizScore: existing?.quizScore,
+            quizTotal: existing?.quizTotal,
+            lastActivityAt: new Date().toISOString(),
+            difficultTopics: existing?.difficultTopics ?? [],
+            reviewRecommended: existing?.reviewRecommended ?? false,
+          },
+        },
+      };
+    });
+  };
+
+  const completeLesson = (lessonId: string, title: string, nextLessonId?: string) => {
+    setState((current) => {
+      const existing = current.lessonProgress[lessonId];
+      const completedTopics = current.completedTopics.includes(lessonId) ? current.completedTopics : [...current.completedTopics, lessonId];
+      return {
+        ...current,
+        currentLessonId: nextLessonId ?? lessonId,
+        completedTopics,
+        lessonProgress: {
+          ...current.lessonProgress,
+          [lessonId]: {
+            status: "completed",
+            openedAt: existing?.openedAt ?? new Date().toISOString(),
+            completedAt: new Date().toISOString(),
+            readPercent: 100,
+            quizScore: existing?.quizScore,
+            quizTotal: existing?.quizTotal,
+            lastActivityAt: new Date().toISOString(),
+            difficultTopics: existing?.difficultTopics ?? [],
+            reviewRecommended: false,
+          },
+        },
+      };
+    });
+    log(`Lektion abgeschlossen: ${title}`, "Lernpfad");
+  };
+
+  const saveLessonQuiz = (lessonId: string, title: string, score: number, total: number, difficultTopics: string[]) => {
+    const passed = total > 0 && score / total >= 0.7;
+    setState((current) => {
+      const existing = current.lessonProgress[lessonId];
+      const difficultLessonIds = passed
+        ? current.difficultLessonIds.filter((id) => id !== lessonId)
+        : Array.from(new Set([...current.difficultLessonIds, lessonId]));
+      return {
+        ...current,
+        difficultLessonIds,
+        lessonProgress: {
+          ...current.lessonProgress,
+          [lessonId]: {
+            status: passed ? "quiz-passed" : "review-recommended",
+            openedAt: existing?.openedAt ?? new Date().toISOString(),
+            completedAt: existing?.completedAt,
+            readPercent: Math.max(existing?.readPercent ?? 0, 85),
+            quizScore: score,
+            quizTotal: total,
+            lastActivityAt: new Date().toISOString(),
+            difficultTopics,
+            reviewRecommended: !passed,
+          },
+        },
+        quizHistory: [...current.quizHistory, { date: new Date().toISOString(), score, total, category: "Lernpfad" }],
+      };
+    });
+    log(`Lektionsquiz ${title}: ${score}/${total} richtig`, "Quiz");
   };
 
   const saveCaseScore = (
@@ -162,5 +273,21 @@ export function useProgress() {
     return count;
   }, [state.streakDates]);
 
-  return { state, toggleTask, toggleTopic, saveCaseScore, saveQuiz, markCard, upsertNote, deleteNote, saveExam, reset, streak };
+  return {
+    state,
+    toggleTask,
+    toggleTopic,
+    openLesson,
+    updateLessonReading,
+    completeLesson,
+    saveLessonQuiz,
+    saveCaseScore,
+    saveQuiz,
+    markCard,
+    upsertNote,
+    deleteNote,
+    saveExam,
+    reset,
+    streak,
+  };
 }

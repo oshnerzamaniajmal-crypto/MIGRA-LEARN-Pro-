@@ -11,8 +11,8 @@ const QuizPage = lazy(() => import("./pages/PracticePage").then((module) => ({ d
 const NotesPage = lazy(() => import("./pages/LibraryPage").then((module) => ({ default: module.NotesPage })));
 const TemplatesPage = lazy(() => import("./pages/LibraryPage").then((module) => ({ default: module.TemplatesPage })));
 const ExamPage = lazy(() => import("./pages/ExamPage").then((module) => ({ default: module.ExamPage })));
-const AcademyPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.AcademyPage })));
-const LearnPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.LearnPage })));
+const AcademyPage = lazy(() => import("./pages/LearningPathPages").then((module) => ({ default: module.AcademyPage })));
+const LearnPage = lazy(() => import("./pages/LearningPathPages").then((module) => ({ default: module.LearnPage })));
 const SchemaPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.SchemaPage })));
 const DecisionPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.DecisionPage })));
 const SourcesPage = lazy(() => import("./pages/KnowledgePage").then((module) => ({ default: module.SourcesPage })));
@@ -45,8 +45,8 @@ export default function App() {
   const content = {
     dashboard: <DashboardPage state={progress.state} streak={progress.streak} setPage={setPage} />,
     assistant: <AssistantPage />,
-    academy: <AcademyPage state={progress.state} toggleTopic={progress.toggleTopic} />,
-    learn: <LearnPage state={progress.state} toggleTopic={progress.toggleTopic} />,
+    academy: <AcademyPage state={progress.state} setPage={setPage} openLesson={progress.openLesson} />,
+    learn: <LearnPage state={progress.state} setPage={setPage} openLesson={progress.openLesson} updateLessonReading={progress.updateLessonReading} completeLesson={progress.completeLesson} saveLessonQuiz={progress.saveLessonQuiz} />,
     schemas: <SchemaPage />,
     decisions: <DecisionPage />,
     plan: <PlanPage state={progress.state} toggleTask={progress.toggleTask} />,

@@ -11,6 +11,70 @@ Die Anwendung ist ein Lern- und Trainingssystem. Sie ist kein Rechtsberatungs- o
 
 ## Neue Lernlogik: erst Recht verstehen, dann Fälle lösen
 
+### Fundamental erneuerte Akademie- und Learn-Struktur
+
+Die Bereiche **Akademie** und **Lernen** sind jetzt klar getrennt:
+
+- **Akademie / Module** ist die Kursbibliothek. Dort sieht man alle Module,
+  alle Lektionen, die empfohlene Reihenfolge, Modulfortschritt und Quellenlogik.
+- **Aktiv lernen** ist der persönliche Lernmodus. Dort sieht man die aktuelle
+  Lektion, die nächste empfohlene Lektion, Quiz, Wiederholung, Glossar,
+  Quellen und den eigenen Fortschritt.
+
+Der neue Lernpfad umfasst **12 Module mit insgesamt 120 fest sortierten
+Lektionen**. Die Sortierung erfolgt technisch über `moduleOrder`,
+`lessonOrder` und `globalLessonNumber` – nicht alphabetisch.
+
+Module:
+
+1. Grundlagen von Migration und Integration
+2. Deutschland verstehen
+3. Aufenthaltsrecht Grundlagen
+4. Asyl, Schutzformen und humanitäre Aufenthaltstitel
+5. Behörden, Dokumente und Fristen
+6. Sprache, Integrationskurs und Berufssprachkurs
+7. Arbeit, Ausbildung und Anerkennung
+8. Studium, BAföG und Hochschule
+9. Familie, Kinder, Schule und Gesundheit
+10. Rechte, Pflichten und Grundgesetz
+11. Einbürgerung und langfristige Perspektive
+12. Praxisfälle und Wiederholung
+
+Jede Lektion enthält jetzt:
+
+- eindeutige ID, Modulnummer, Lektionsnummer und globale Kursnummer
+- vorherige und nächste Lektion
+- Voraussetzung / empfohlene Reihenfolge
+- Lernziel, Lernzeit und Schwierigkeitsgrad
+- einfache Erklärung und vertiefende Erklärung
+- Beispiele aus Alltag, Behörde sowie Arbeit oder Studium
+- wichtige Begriffe mit Glossar-Verknüpfung
+- typische Fehler
+- Checkliste
+- Mini-Zusammenfassung
+- Reflexionsfrage
+- Mini-Quiz mit Erklärung falscher Antworten
+- Quellen und Quellenstand
+- Warnhinweise bei rechtlich, sozialrechtlich oder gesundheitlich sensiblen
+  Themen
+- Review-Status für Content-Prüfung
+
+Der persönliche Fortschritt wird im Browser per `localStorage` gespeichert:
+
+- aktuelle Lektion
+- geöffnete Lektionen
+- Lesefortschritt
+- abgeschlossene Lektionen
+- Quiz-Ergebnisse
+- schwierige Themen
+- Wiederholungsempfehlungen
+- letzte Aktivität
+- nächster empfohlener Schritt
+
+Wichtig: Alle Lektionen bleiben sichtbar. Spätere Lektionen werden nicht hart
+gesperrt, aber klar als empfohlene Reihenfolge geführt. Das entspricht dem
+Prinzip: flexibel lernen, aber nie orientierungslos.
+
 Die Hauptnavigation folgt einer fachlichen Reihenfolge:
 
 1. **Termin- & Mail-Assistant** – MVP-Modul für Termine, E-Mails, Aufgaben,

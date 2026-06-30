@@ -219,10 +219,116 @@ export interface Note {
   updatedAt: string;
 }
 
+export type LessonStatus = "not-started" | "started" | "reading" | "quiz-passed" | "completed" | "review-recommended";
+export type LessonDifficulty = "Basis" | "Aufbau" | "Praxis" | "Fortgeschritten";
+export type ReviewStatus = "aktuell" | "muss-geprüft-werden" | "veraltet" | "quelle-fehlt" | "unvollständig";
+export type LessonSourceType = "official" | "legal" | "authority" | "recognized" | "learning";
+
+export interface LessonSourceMeta {
+  sourceTitle: string;
+  sourceUrl: string;
+  sourcePublisher: string;
+  sourceType: LessonSourceType;
+  sourceDate: string;
+  lastCheckedAt: string;
+  legalStatusRelevant: boolean;
+  needsRegularReview: boolean;
+  confidenceLevel: "hoch" | "mittel" | "niedrig";
+  contentReviewerNote: string;
+}
+
+export interface LearningQuizQuestion {
+  id: string;
+  type: "Multiple Choice" | "Richtig/Falsch" | "Begriff erklären" | "Praxisfall verstehen" | "Fehler erkennen";
+  question: string;
+  options: string[];
+  correct: number;
+  explanation: string;
+  difficulty: LessonDifficulty;
+  sourceReference: string;
+}
+
+export interface LearningModule {
+  id: string;
+  moduleOrder: number;
+  title: string;
+  shortTitle: string;
+  description: string;
+  learningOutcome: string;
+  estimatedMinutes: number;
+  color: string;
+}
+
+export interface LearningLesson {
+  id: string;
+  moduleId: string;
+  moduleOrder: number;
+  lessonOrder: number;
+  globalLessonNumber: number;
+  title: string;
+  slug: string;
+  description: string;
+  learningObjective: string;
+  estimatedMinutes: number;
+  difficultyLevel: LessonDifficulty;
+  prerequisiteLessonIds: string[];
+  previousLessonId?: string;
+  nextLessonId?: string;
+  recommendedAfter?: string;
+  isCoreLesson: boolean;
+  isOptionalLesson: boolean;
+  isLegalSensitive: boolean;
+  requiresSourceReview: boolean;
+  whyImportant: string;
+  simpleExplanation: string;
+  deepExplanation: string;
+  everydayExample: string;
+  authorityExample: string;
+  workStudyExample: string;
+  keyTerms: { term: string; simple: string; detailed: string; example: string; related: string[] }[];
+  commonMistakes: string[];
+  checklist: string[];
+  miniSummary: string;
+  quiz: LearningQuizQuestion[];
+  reflectionQuestion: string;
+  sources: LessonSourceMeta[];
+  sourceStand: string;
+  legalReviewNote: string;
+  reviewStatus: ReviewStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GlossaryEntry {
+  id: string;
+  term: string;
+  simpleExplanation: string;
+  detailedExplanation: string;
+  example: string;
+  relatedTerms: string[];
+  source: LessonSourceMeta;
+  lastCheckedAt: string;
+}
+
+export interface LessonProgress {
+  status: LessonStatus;
+  openedAt?: string;
+  completedAt?: string;
+  readPercent: number;
+  quizScore?: number;
+  quizTotal?: number;
+  lastActivityAt: string;
+  difficultTopics: string[];
+  reviewRecommended: boolean;
+}
+
 export interface ProgressState {
   version: number;
   completedTasks: string[];
   completedTopics: string[];
+  currentLessonId?: string;
+  lessonProgress: Record<string, LessonProgress>;
+  difficultLessonIds: string[];
   caseScores: Record<string, number>;
   caseAttempts: {
     caseId: string;
