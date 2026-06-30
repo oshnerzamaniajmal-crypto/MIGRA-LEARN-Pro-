@@ -89,7 +89,9 @@ Die Hauptnavigation folgt einer fachlichen Reihenfolge:
 3. **Lernen** – Gesetzesgrundlage, einfache Erklärung, Zweck, Systematik,
    Begriffe, Voraussetzungen, Rechtsfolge, Praxis, Fehler und Beispiele
 4. **Paragraphenbibliothek** – Rechtsnormen und rechtliche Themen als
-   strukturierte Beratungs- und Orientierungskarten
+   strukturierte Beratungs- und Orientierungskarten mit Zielgruppe,
+   Dokumenten, Voraussetzungen, Ablauf, Folgen, Fehlern, Checklisten,
+   Quellenstand und Review-Status
 5. **Prüfschemata** – zehn interaktive Prüfschritte vom Sachverhalt bis zum
    nächsten Verfahrensschritt
 6. **Entscheidungsboxen** – Entscheidungsbäume und Kriterienchecks für
@@ -530,6 +532,19 @@ Die Paragraphen-Kommentare liegen in:
 ```text
 src/data/legalParagraphs.ts
 ```
+
+Die professionelle Anzeige wird zusätzlich über eine Profilstruktur erzeugt:
+
+```text
+src/data/paragraphProfiles.ts
+```
+
+Diese Datei übersetzt jeden Paragraphen automatisch in eine Beratungs- und
+Orientierungskarte mit Zielgruppen, Schwierigkeit, Relevanz, zuständiger
+Behörde, Dokumentenhinweisen, Verfahrensschritten, Rechtsfolgen,
+häufigen Fehlern, nächsten Schritten und Quellen-/Review-Status. Neue
+Paragraphen werden deshalb weiterhin in `legalParagraphs.ts` ergänzt; die
+professionelle Struktur entsteht daraus automatisch.
 
 Ein neuer Paragraph sollte als vollständiges Objekt ergänzt werden. Wichtig
 sind insbesondere:
